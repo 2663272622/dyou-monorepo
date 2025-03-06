@@ -1,0 +1,44 @@
+{
+  "name": "@dy-monorepo/utils",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "license": "",
+  
+  "main": "index.ts",
+  "module": "index.js",
+  "scripts": {
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,vue}": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "keywords": [
+    "vue",
+    "admin",
+    "dashboard",
+    "element-ui",
+    "boilerplate",
+    "admin-template",
+    "management-system"
+  ],
+  "dependencies": { 
+  },
+  "devDependencies": { 
+  },
+  "engines": {
+    "node": ">=8.9",
+    "npm": ">= 3.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}
