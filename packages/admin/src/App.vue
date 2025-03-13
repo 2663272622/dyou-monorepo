@@ -13,3 +13,12 @@ onMounted(() => {
   })
 })
 </script>
+
+
+<style>
+    .el-dialog__body{
+        max-height: 75vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+    } 
+</style>

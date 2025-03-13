@@ -1,33 +1,49 @@
-<template>
+<!-- 数字教材管理 -->
+ <template>
    <div class="app-container">
       <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-         <el-form-item label="字典名称" prop="dictName">
+         <el-form-item label="书籍名称" prop="dictName">
             <el-input
                v-model="queryParams.dictName"
-               placeholder="请输入字典名称"
+               placeholder="请输入书籍名称"
                clearable
                style="width: 240px"
                @keyup.enter="handleQuery"
             />
-         </el-form-item>
-         <el-form-item label="字典类型" prop="dictType">
+         </el-form-item> 
+         <el-form-item label="书籍作者" prop="dictName">
             <el-input
-               v-model="queryParams.dictType"
-               placeholder="请输入字典类型"
+               v-model="queryParams.dictName"
+               placeholder="请输入书籍作者"
                clearable
                style="width: 240px"
                @keyup.enter="handleQuery"
             />
-         </el-form-item>
-         <el-form-item label="状态" prop="status">
+         </el-form-item>  
+         <el-form-item label="书籍状态" prop="status">
             <el-select
                v-model="queryParams.status"
-               placeholder="字典状态"
+               placeholder="书籍状态"
                clearable
                style="width: 240px"
             >
                <el-option
-                  v-for="dict in sys_normal_disable"
+                  v-for="dict in book_issue_status"
+                  :key="dict.value"
+                  :label="dict.label"
+                  :value="dict.value"
+               />
+            </el-select>
+         </el-form-item>
+         <el-form-item label="审核状态" prop="status">
+            <el-select
+               v-model="queryParams.status"
+               placeholder="书籍状态"
+               clearable
+               style="width: 240px"
+            >
+               <el-option
+                  v-for="dict in book_audit_status"
                   :key="dict.value"
                   :label="dict.label"
                   :value="dict.value"
@@ -46,12 +62,6 @@
          </el-form-item>
          <el-form-item>
             <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-         </el-form-item>
-      </el-form>
-
-      <el-row :gutter="10" class="mb8">
-         <el-col :span="1.5">
             <el-button
                type="primary"
                plain
@@ -59,53 +69,47 @@
                @click="handleAdd"
                v-hasPermi="['system:dict:add']"
             >新增</el-button>
-         </el-col>
-         <el-col :span="1.5">
-            <el-button
-               type="success"
-               plain
-               icon="Edit"
-               :disabled="single"
-               @click="handleUpdate"
-               v-hasPermi="['system:dict:edit']"
-            >修改</el-button>
-         </el-col>
-         <el-col :span="1.5">
-            <el-button
-               type="danger"
-               plain
-               icon="Delete"
-               :disabled="multiple"
-               @click="handleDelete"
-               v-hasPermi="['system:dict:remove']"
-            >删除</el-button>
-         </el-col>
-         <el-col :span="1.5">
-            <el-button
-               type="warning"
-               plain
-               icon="Download"
-               @click="handleExport"
-               v-hasPermi="['system:dict:export']"
-            >导出</el-button>
-         </el-col>
-         <el-col :span="1.5">
-            <el-button
-               type="danger"
-               plain
-               icon="Refresh"
-               @click="handleRefreshCache"
-               v-hasPermi="['system:dict:remove']"
-            >刷新缓存</el-button>
-         </el-col>
-         <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
-      </el-row>
-
+         </el-form-item>
+      </el-form>
+      
       <el-table v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
-         <el-table-column type="selection" width="55" align="center" />
-         <el-table-column label="字典编号" align="center" prop="dictId" />
-         <el-table-column label="字典名称" align="center" prop="dictName" width="170" :show-overflow-tooltip="true"/>
-         <el-table-column label="字典类型" align="center" :show-overflow-tooltip="true" width="200">
+         <!-- <el-table-column type="selection" width="55" align="center" /> -->
+         <el-table-column label="书籍封面" align="center" fixed="left" width="130"  >
+            <template #default="scope">
+                <el-image
+                    style="width: 130px; height: 140px"
+                    :src="'https://file.dyjiaoyu.com/statics/2025/02/17/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250217094620_20250217094709A250.jpg'"
+                    :zoom-rate="1.2"
+                    :max-scale="7"
+                    :min-scale="0.2"
+                    :preview-src-list="['https://file.dyjiaoyu.com/statics/2025/02/17/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250217094620_20250217094709A250.jpg']"
+                    show-progress
+                    :initial-index="0"
+                    fit="cover"
+                />
+            </template>
+         </el-table-column>
+         <el-table-column label="书籍名称" align="center" fixed="left" prop="dictName"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="书籍作者" align="center" prop="dictName"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="书籍价格" align="center" prop="dictName"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="书籍定价" align="center" prop="dictName"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="书籍字数" align="center" prop="dictName"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="ISBN" align="center" prop="dictName"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="状态" align="center" prop="status">
+            <template #default="scope">
+               <dict-tag :options="sys_normal_disable" :value="scope.row.status" />
+            </template>
+         </el-table-column>
+         <el-table-column label="学科分类" align="center" prop="dictName"   width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="学科二级分类" align="center" prop="dictName"   width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="责任编辑电话" align="center" prop="dictName"   width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="出版日期" align="center" prop="dictName"   width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="合作院校" align="center" prop="dictName"   width="200" :show-overflow-tooltip="true"/>
+ 
+
+
+ 
+         <el-table-column label="字典类型" align="center" :show-overflow-tooltip="true">
             <template #default="scope">
                <router-link :to="'/system/dict-data/index/' + scope.row.dictId" class="link-type">
                   <span>{{ scope.row.dictType }}</span>
@@ -139,44 +143,28 @@
          @pagination="getList"
       />
 
-      <!-- 添加或修改参数配置对话框 -->
-      <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-         <el-form ref="dictRef" :model="form" :rules="rules" label-width="80px">
-            <el-form-item label="字典名称" prop="dictName">
-               <el-input v-model="form.dictName" placeholder="请输入字典名称" />
-            </el-form-item>
-            <el-form-item label="字典类型" prop="dictType">
-               <el-input v-model="form.dictType" placeholder="请输入字典类型" />
-            </el-form-item>
-            <el-form-item label="状态" prop="status">
-               <el-radio-group v-model="form.status">
-                  <el-radio
-                     v-for="dict in sys_normal_disable"
-                     :key="dict.value"
-                     :value="dict.value"
-                  >{{ dict.label }}</el-radio>
-               </el-radio-group>
-            </el-form-item>
-            <el-form-item label="备注" prop="remark">
-               <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"></el-input>
-            </el-form-item>
-         </el-form>
-         <template #footer>
-            <div class="dialog-footer">
-               <el-button type="primary" @click="submitForm">确 定</el-button>
-               <el-button @click="cancel">取 消</el-button>
-            </div>
-         </template>
-      </el-dialog>
+      <editView
+         v-model="open"
+         type="editType"
+        @cancel="()=>{}"
+        @submit="()=>{}"
+      ></editView>
+ 
    </div>
 </template>
 
 <script setup name="Dict">
 import useDictStore from '@/store/modules/dict'
 import { listType, getType, delType, addType, updateType, refreshCache } from "@/api/system/dict/type";
+import editView from './edit'
 
 const { proxy } = getCurrentInstance();
 const { sys_normal_disable } = proxy.useDict("sys_normal_disable");
+// 书籍发布状态
+const { book_issue_status } = proxy.useDict("book_issue_status");
+// 书籍审核状态
+const { book_audit_status } = proxy.useDict("book_audit_status");
+
 
 const typeList = ref([]);
 const open = ref(false);
