@@ -145,6 +145,35 @@ export const dynamicRoutes = [
     ]
   },
   {
+    path: '/teaching/college-auditTeacher',
+    component: Layout,
+    hidden: true,
+    permissions: ['manage:college:list'],
+    children: [
+      {
+        // path: 'index/:collegeId(\\d+)',
+        path: 'index',
+        component: () => import('@/views/teaching/college/auditlist'),
+        name: 'Auditlist',
+        meta: { title: '老师审核', activeMenu: '/teaching/college' }
+      }
+    ]
+  },
+  {
+    path: '/teaching/teacher-textbook',
+    component: Layout,
+    hidden: true,
+    permissions: ['manage:teacher:list'],
+    children: [
+      {
+        path: 'index/:teacherId(\\d+)',
+        component: () => import('@/views/teaching/teacher/textbook'),
+        name: 'Textbook',
+        meta: { title: '教材数据', activeMenu: '/teaching/teacher' }
+      }
+    ]
+  },
+  {
     path: '/tool/gen-edit',
     component: Layout,
     hidden: true,
