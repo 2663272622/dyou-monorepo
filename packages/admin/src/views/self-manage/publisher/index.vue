@@ -18,7 +18,7 @@
                plain
                icon="Plus"
                @click="handleAdd"
-               v-hasPermi="['system:dict:add']"
+               v-hasPermi="['manage:publisher:add']"
             >新增</el-button>
          </el-form-item>
       </el-form>
@@ -53,9 +53,8 @@
   
          <el-table-column label="操作" align="center" width="160" class-name="small-padding fixed-width" fixed="right">
             <template #default="scope">
-               <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['system:dict:edit']">修改</el-button>
-               <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['system:dict:edit']">设置管理员</el-button>
-               <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['system:dict:remove']">删除</el-button>
+               <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['manage:publisher:edit']">修改</el-button>
+               <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['manage:publisher:remove']">删除</el-button>
             </template>
          </el-table-column>
       </el-table>
@@ -83,7 +82,7 @@
 import useDictStore from '@/store/modules/dict'
 import { listType, getType, delType, addType, updateType, refreshCache } from "@/api/system/dict/type";
 import editView from './edit'
-import { pressListApi } from "@/api/press/press"
+import { pressListApi,pressDelApi } from "@/api/press/press"
 
 const { proxy } = getCurrentInstance();
 const { start_stop } = proxy.useDict("start_stop");
@@ -97,7 +96,6 @@ const typeList = ref([]);
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
-const ids = ref([]);
 const total = ref(0);
 const title = ref("");
 const editType = ref("")
@@ -146,13 +144,13 @@ function handleUpdate(row) {
 
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const dictIds = row.dictId || ids.value;
-  proxy.$modal.confirm('是否确认删除字典编号为"' + dictIds + '"的数据项？').then(function() {
-    return delType(dictIds);
-  }).then(() => {
-    getList();
-    proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+    currentId.value = row.publisherId
+    proxy.$modal.confirm('是否确认删除？').then(function() {
+        return pressDelApi(currentId.value);
+    }).then(() => {
+        getList();
+        proxy.$modal.msgSuccess("删除成功");
+    }).catch(() => {});
 }
 
 

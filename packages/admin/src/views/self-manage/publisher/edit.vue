@@ -67,7 +67,7 @@
 <script setup>
 import { useVModel } from '@vueuse/core'
 import dyUpload from "@/components/dy-upload/index.vue"
-import { pressAddApi,pressEditApi } from "@/api/press/press"
+import { pressAddApi,pressEditApi,pressInfoApi } from "@/api/press/press"
 import { ElNotification , ElMessageBox, ElMessage, ElLoading } from 'element-plus'
 
 // 子组件代码如下 可同时修改父子组件的v-model值
@@ -95,8 +95,7 @@ const formRef = ref()
 watch(()=>modelValue.value,()=>{
     if(modelValue.value){
         if(props.type == 'edit'){
-            props.id
-            debugger
+            handleGetInfo(props.id)
         }
     }
 })
@@ -124,11 +123,18 @@ const rules = reactive({
     // age: [{ validator: checkAge, trigger: 'blur' }],
 })
 
+const handleGetInfo = (id)=>{
+    pressInfoApi(id).then(res=>{
+        formData.value = res.data
+    })
+}
+
 // 点击确认
 const submitForm = () => {
     formRef.value.validate(async(bol,msg)=>{
         if(bol){
             let res = null;
+            formData.value.phone = formData.value.phone *1 
             switch(props.type){
                 case "add":
                     res = await pressAddApi(formData.value)

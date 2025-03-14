@@ -11,11 +11,10 @@ export function pressAddApi(data) {
     })
 } 
 // 删除出版社
-export function pressDelApi(data) {
+export function pressDelApi(id) {
     return request({
-        url: '/manage/publisher',
+        url: '/manage/publisher/'+ id,
         method: 'delete',
-        data , 
         headers:{
         }
     })
@@ -31,11 +30,10 @@ export function pressEditApi(data) {
     })
 } 
 //  出版社详情
-export function pressInfoApi(data) {
+export function pressInfoApi(id) {
     return request({
-        url: '/manage/publisher',
+        url: '/manage/publisher/' + id,
         method: 'get',
-        data , 
         headers:{
         }
     })
