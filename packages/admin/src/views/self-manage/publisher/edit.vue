@@ -1,6 +1,6 @@
 <template>
     <!-- 添加或修改参数配置对话框 -->
-    <el-dialog title="这就是名称呗" v-model="modelValue" width="500" 
+    <el-dialog :title="props.title" v-model="modelValue" width="500" 
         :close-on-click-modal="false"
         :close-on-press-escape="false"
         :show-close="false"
@@ -79,6 +79,10 @@ const props = defineProps({
   type:{
     type:[ String ],
     default:"add"
+  },
+  title:{
+    type:[ String ],
+    default:"出版社"
   },
   id:{
     type:[ String ],

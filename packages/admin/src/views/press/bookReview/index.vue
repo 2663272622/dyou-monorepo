@@ -1,31 +1,47 @@
-<!-- 出版社管理 -->
+<!-- 书籍审核 -->
  <template>
    <div class="app-container">
       <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-         <el-form-item label="出版社" prop="name">
+         <el-form-item label="教材名称" prop="name">
             <el-input
                v-model="queryParams.name"
-               placeholder="请输入出版社名称"
+               placeholder="请输入教材名称"
                clearable
                style="width: 240px"
                @keyup.enter="handleQuery"
             />
          </el-form-item>  
+         <el-form-item label="书籍作者" prop="name">
+            <el-input
+               v-model="queryParams.name"
+               placeholder="请输入作者名称"
+               clearable
+               style="width: 240px"
+               @keyup.enter="handleQuery"
+            />
+         </el-form-item>  
+         <el-form-item label="审核状态" prop="status">
+            <el-select
+               v-model="queryParams.status"
+               placeholder="请选择审核状态"
+               clearable
+               style="width: 240px"
+            >
+               <el-option
+                  v-for="dict in book_audit_status"
+                  :key="dict.value"
+                  :label="dict.label"
+                  :value="dict.value"
+               />
+            </el-select>
+         </el-form-item>
          <el-form-item>
             <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-            <el-button
-               type="primary"
-               plain
-               icon="Plus"
-               @click="handleAdd"
-               v-hasPermi="['manage:publisher:add']"
-            >新增</el-button>
          </el-form-item>
       </el-form>
       
       <el-table v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
-         <!-- <el-table-column type="selection" width="55" align="center" /> -->
-         <el-table-column label="LOGO" align="center" fixed="left" width="70"  >
+         <el-table-column label="封面" align="center" fixed="left" width="70"  >
             <template #default="scope">
                 <el-image
                     style="width: 50px; height: 50px"
@@ -34,27 +50,27 @@
                     :max-scale="7"
                     :min-scale="0.2"
                     fit="cover"
-                    />
-                    <!-- show-progress
-                    :preview-src-list="[scope.row.logo]"
-                    :initial-index="0" -->
+                /> 
             </template>
          </el-table-column>
-         <el-table-column label="出版社名称" align="center" fixed="left" prop="name"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="联系电话" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
-         <!-- <el-table-column label="管理员" align="center" prop="address"  width="200" :show-overflow-tooltip="true"/> -->
-         <el-table-column label="地址" align="center" prop="address"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="是否开通" align="center" prop="status">
+         <el-table-column label="书籍名称" align="center" fixed="left" prop="name"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="书籍作者" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="提交时间" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="处理时间" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="处理意见" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="原因" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/> 
+
+         <!-- <el-table-column label="是否开通" align="center" prop="status">
             <template #default="scope">
                <dict-tag :options="start_stop" :value="scope.row.status" />
             </template>
-         </el-table-column>
-         <el-table-column label="出版社管理员" align="center" prop="dictName"  width="200" :show-overflow-tooltip="true"/>
+         </el-table-column> -->
+
   
-         <el-table-column label="操作" align="center" width="160" class-name="small-padding fixed-width" fixed="right">
+         <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width" fixed="right">
             <template #default="scope">
-               <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['manage:publisher:edit']">修改</el-button>
-               <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['manage:publisher:remove']">删除</el-button>
+               <el-button link type="primary" icon="SuccessFilled" @click="handleUpdate(1,scope.row)" v-hasPermi="['manage:publisher:Open']">通过</el-button>
+               <el-button link type="primary" icon="CircleCloseFilled" @click="handleUpdate(2,scope.row)" v-hasPermi="['manage:publisher:TurnOff']">驳回</el-button>
             </template>
          </el-table-column>
       </el-table>
@@ -70,8 +86,8 @@
       <editView
          v-model="open"
          :type="editType"
-         :id="currentId"
          :title="title"
+         :id="currentId"
         @cancel="()=>{}"
         @submit="()=>{getList()}"
       ></editView>
@@ -123,38 +139,31 @@ function handleQuery() {
   queryParams.value.pageNum = 1;
   getList();
 }
- 
-/** 新增按钮操作 */
-function handleAdd() {
-    editType.value = 'add'
-    title.value = "添加字典类型";
-    open.value = true;
-}
 
 /** 多选框选中数据 */
 function handleSelectionChange(selection) { }
 
 /** 修改按钮操作 */
-function handleUpdate(row) {
-    editType.value = 'edit'
-    title.value = "编辑字典类型";
-    currentId.value = row.publisherId
-    open.value = true;
+function handleUpdate(type,row) {
+    // 保存row  id
+    currentId.value = row?.publisherId || "";
+
+    switch(type){
+        case 1:// 编辑基础数据
+            editType.value = 'resolve'
+            title.value = "同意意见";
+            open.value = true;
+        break;
+        case 2:// 新增图书
+            editType.value = 'reject'
+            title.value = "驳回意见";
+            open.value = true;
+        break; 
+
+    }
+
 }
-
-
-/** 删除按钮操作 */
-function handleDelete(row) {
-    currentId.value = row.publisherId
-    proxy.$modal.confirm('是否确认删除？').then(function() {
-        return pressDelApi(currentId.value);
-    }).then(() => {
-        getList();
-        proxy.$modal.msgSuccess("删除成功");
-    }).catch(() => {});
-}
-
-
+ 
 
 getList();
 </script>

@@ -112,3 +112,11 @@ export function isArray(arg) {
   }
   return Array.isArray(arg)
 }
+
+export function isPhone(c,phoneNumber) {
+    // 正则表达式：以1开头，第二位为3-9中的一个数字，后面是9个数字
+    if(phoneNumber == ''){
+        return true
+    }
+    return /^1[3-9]\d{9}$/.test(phoneNumber);
+}
