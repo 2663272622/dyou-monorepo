@@ -66,8 +66,18 @@
     <el-table v-loading="loading" :data="schoolList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column type="index" label="序号" width="120"/>
+      <el-table-column label="Logo" :show-overflow-tooltip="true" width="150" >
+        <template #default="scope">
+          <ImagePreview :src="scope.row.schoolLogo"></ImagePreview>
+        </template>
+      </el-table-column>
       <el-table-column label="学校名称" prop="schoolName" :show-overflow-tooltip="true" width="150"/>
-      <el-table-column label="手机号" prop="contactPhone" :show-overflow-tooltip="true" width="150"/>
+      <el-table-column label="联系电话" prop="contactPhone" :show-overflow-tooltip="true" width="150"/>
+      <el-table-column label="学校层次" :show-overflow-tooltip="true" width="150" >
+        <template #default="scope">
+          <dict-tag :options="sch_teaching_level" :value="scope.row.schoolLevel"/>
+        </template>
+      </el-table-column>
       <el-table-column label="是否开通" align="center" key="isActive">
         <template  #default="scope">
           <dict-tag :options="sch_open_status" :value="scope.row.isActive"/>
@@ -113,7 +123,10 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="学校logo" prop="schoolLogo">
-              <image-upload v-model="form.schoolLogo"/>
+              <dyUpload
+                  v-model="form.schoolLogo"
+                  fileType="5"
+              ></dyUpload>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -153,7 +166,7 @@
 </template>
 
 <script setup name="School">
-import { addSchool, listSchool , listSchoolDetail, updateSchool , delSchool } from "@/api/teaching/school.js";
+import { addSchool, listSchool , listSchoolDetail, updateSchool , delSchool } from "@/api/self-manage/school.js";
 import {useRouter} from "vue-router";
 
 const router = useRouter();

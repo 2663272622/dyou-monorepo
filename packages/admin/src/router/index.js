@@ -151,8 +151,7 @@ export const dynamicRoutes = [
     permissions: ['manage:college:list'],
     children: [
       {
-        // path: 'index/:collegeId(\\d+)',
-        path: 'index',
+        path: 'index/:collegeId(\\d+)',
         component: () => import('@/views/teaching/college/auditlist'),
         name: 'Auditlist',
         meta: { title: '老师审核', activeMenu: '/teaching/college' }

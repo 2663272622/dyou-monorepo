@@ -266,6 +266,6 @@ function cancel() {
 getList();
 
 function audit(){
-  router.push("/teaching/college-auditTeacher/index/");
+  router.push("/teaching/college-auditTeacher/index/1");
 }
 </script>

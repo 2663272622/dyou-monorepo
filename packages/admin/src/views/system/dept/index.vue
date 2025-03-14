@@ -113,11 +113,6 @@
                   </el-form-item>
                </el-col>
                <el-col :span="12">
-                  <el-form-item label="邮箱" prop="email">
-                     <el-input v-model="form.email" placeholder="请输入邮箱" maxlength="50" />
-                  </el-form-item>
-               </el-col>
-               <el-col :span="12">
                   <el-form-item label="部门状态">
                      <el-radio-group v-model="form.status">
                         <el-radio
@@ -165,7 +160,6 @@ const data = reactive({
     parentId: [{ required: true, message: "上级部门不能为空", trigger: "blur" }],
     deptName: [{ required: true, message: "部门名称不能为空", trigger: "blur" }],
     orderNum: [{ required: true, message: "显示排序不能为空", trigger: "blur" }],
-    email: [{ type: "email", message: "请输入正确的邮箱地址", trigger: ["blur", "change"] }],
     phone: [{ pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: "请输入正确的手机号码", trigger: "blur" }]
   },
 });
@@ -196,7 +190,6 @@ function reset() {
     orderNum: 0,
     leader: undefined,
     phone: undefined,
-    email: undefined,
     status: "0"
   };
   proxy.resetForm("deptRef");
