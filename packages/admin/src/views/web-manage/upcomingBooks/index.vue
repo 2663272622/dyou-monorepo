@@ -29,6 +29,7 @@
             @click="handleAdd"
         >新增
         </el-button>
+
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -67,7 +68,7 @@
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column type="index" label="序号" width="120"/>
       <el-table-column label="图片名称" prop="resName" :show-overflow-tooltip="true" width="150"/>
-      <el-table-column label="资源类型" align="center" key="resType">
+      <el-table-column label="资源类型" align="center" key="status">
         <template #default="scope">
           <dict-tag :options="res_type" :value="scope.row.resType"/>
         </template>

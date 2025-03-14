@@ -1,9 +1,9 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" v-show="showSearch" :inline="true" label-width="68px">
-      <el-form-item label="图片名称" prop="imgName">
+      <el-form-item label="图片名称" prop="resName">
         <el-input
-            v-model="queryParams.imgName"
+            v-model="queryParams.resName"
             placeholder="请输入图片名称"
             clearable
             style="width: 240px"
@@ -63,14 +63,18 @@
     </el-row>
 
     <!-- 表格数据 -->
-    <el-table v-loading="loading" :data="imgList" :default-sort="defaultSort" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="imgList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column type="index" label="序号" width="120"/>
-      <el-table-column label="图片名称" prop="imgName" :show-overflow-tooltip="true" width="150"/>
-      <el-table-column label="资源类型" prop="resType" :show-overflow-tooltip="true" width="150"/>
+      <el-table-column label="图片名称" prop="resName" :show-overflow-tooltip="true" width="150"/>
+      <el-table-column label="资源类型" align="center" key="resType">
+        <template #default="scope">
+          <dict-tag :options="res_type" :value="scope.row.resType"/>
+        </template>
+      </el-table-column>
       <el-table-column label="状态" align="center" key="status">
         <template #default="scope">
-          <dict-tag :options="res_type" :value="scope.row.status"/>
+          <dict-tag :options="start_stop" :value="scope.row.status"/>
         </template>
       </el-table-column>
       <el-table-column label="创建时间" prop="createTime" :show-overflow-tooltip="true" width="150"/>
@@ -98,10 +102,11 @@
     <!-- 添加或修改资源对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="imgRef" :model="form" :rules="rules" label-width="100px">
-        <el-form-item label="图片名称" prop="imgName">
-          <el-input v-model="form.imgName" placeholder="请输入图片名称"/>
+        <el-form-item label="图片名称" prop="resName">
+          <el-input v-model="form.resName" placeholder="请输入图片名称"/>
         </el-form-item>
         <el-form-item label="资源类型" prop="resType">
+          {{form.resType}}
           <el-radio-group v-model="form.resType">
             <el-radio
                 v-for="dict in res_type"
@@ -111,14 +116,21 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="显示排序" prop="sortOrder">
+              <el-input-number v-model="form.sortOrder" controls-position="right" :min="0" />
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item label="状态" prop="status">
+          {{form.status}}
           <el-radio-group v-model="form.status">
             <el-radio
                 v-for="dict in start_stop"
                 :key="dict.value"
                 :value="dict.value"
-            >{{ dict.label }}
-            </el-radio>
+            >{{ dict.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="图片上传" prop="resUrl">
@@ -141,7 +153,7 @@
   </div>
 </template>
 
-<script setup name="img">
+<script setup name="ImageManager">
 import {addImg, listImg, listImgDetail, updateImg, delImg} from "@/api/web-manage/slidesshow";
 import {useRouter} from "vue-router";
 
@@ -157,22 +169,22 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
-const defaultSort = ref({prop: "accessTime", order: "descending"});
 
 const data = reactive({
   form: {},
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    imgName: undefined,
+    resName: undefined,
     status: undefined,
+    resType:undefined,
   },
   rules: {
-    imgName: [{required: true, message: "图片名称不能为空", trigger: "blur"}],
+    resName: [{required: true, message: "图片名称不能为空", trigger: "blur"}],
     status: [{required: true, message: "请选择状态", trigger: "blur"}],
     resType: [{required: true, message: "请选择资源类型", trigger: "blur"}],
-    resUrl: [{required: true, message: "请上传图片", trigger: "blur"}
-    ],
+    sortOrder: [{required: true, message: "请填写排序", trigger: "blur"}],
+    resUrl: [{required: true, message: "请上传图片", trigger: "blur"}],
   },
 });
 
@@ -203,7 +215,7 @@ function resetQuery() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const roleIds = row.id || ids.value;
-  proxy.$modal.confirm('是否确认删除学校为"' + row.imgName + '"的数据项?').then(function () {
+  proxy.$modal.confirm('是否确认删除图片为"' + row.resName + '"的数据项?').then(function () {
     return delImg(roleIds);
   }).then(() => {
     getList();
@@ -231,8 +243,9 @@ function handleSelectionChange(selection) {
 function reset() {
   form.value = {
     id: undefined,
-    imgName: undefined,
+    resName: undefined,
     resUrl: undefined,
+    sortOrder: undefined,
     status: undefined,
     resType: undefined,
     remark: undefined,
@@ -245,7 +258,7 @@ function handleAdd() {
   reset();
   //请求接口
   open.value = true;
-  title.value = "添加学校";
+  title.value = "添加图片";
 }
 
 /** 修改资源 */
@@ -253,11 +266,12 @@ function handleUpdate(row) {
   reset();
   const id = row.id || ids.value
   listImgDetail(id).then(res => {
-    console.log(res.data)
     form.value = res.data
+    form.status = res.data.status
+    form.resType = res.data.resType
     form.id = res.data.id
     open.value = true;
-    title.value = "修改学校信息";
+    title.value = "修改图片信息";
   })
 }
 
