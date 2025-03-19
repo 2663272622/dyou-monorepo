@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" v-show="showSearch" :inline="true" label-width="68px">
-      <el-form-item label="图片名称" prop="resName">
+      <el-form-item label="书籍名称" prop="bookName">
         <el-input
-            v-model="queryParams.resName"
-            placeholder="请输入图片名称"
+            v-model="queryParams.bookName"
+            placeholder="请输入书籍名称"
             clearable
             style="width: 240px"
             @keyup.enter="handleQuery"
@@ -12,7 +12,7 @@
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="状态" clearable style="width: 240px">
-          <el-option v-for="dict in start_stop" :key="dict.value" :label="dict.label" :value="dict.value"/>
+          <el-option v-for="dict in upcoming_books" :key="dict.value" :label="dict.label" :value="dict.value"/>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -64,22 +64,24 @@
     </el-row>
 
     <!-- 表格数据 -->
-    <el-table v-loading="loading" :data="imgList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="upcomingBookList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column type="index" label="序号" width="120"/>
-      <el-table-column label="图片名称" prop="resName" :show-overflow-tooltip="true" width="150"/>
-      <el-table-column label="资源类型" align="center" key="status">
+      <el-table-column label="封面" align="center" key="status">
         <template #default="scope">
-          <dict-tag :options="res_type" :value="scope.row.resType"/>
+          <ImagePreview :src="scope.row.coverUrl"></ImagePreview>
         </template>
       </el-table-column>
+      <el-table-column label="书籍名称" prop="bookName" :show-overflow-tooltip="true" width="150"/>
+      <el-table-column label="作者" prop="author" :show-overflow-tooltip="true" width="150"/>
       <el-table-column label="状态" align="center" key="status">
         <template #default="scope">
-          <dict-tag :options="start_stop" :value="scope.row.status"/>
+          <dict-tag :options="upcoming_books" :value="scope.row.status"/>
         </template>
       </el-table-column>
       <el-table-column label="创建时间" prop="createTime" :show-overflow-tooltip="true" width="150"/>
       <el-table-column label="修改时间" prop="updateTime" :show-overflow-tooltip="true" width="150"/>
+      <el-table-column label="备注" prop="remark" :show-overflow-tooltip="true" width="150"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-tooltip content="修改" placement="top">
@@ -102,20 +104,12 @@
 
     <!-- 添加或修改资源对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="imgRef" :model="form" :rules="rules" label-width="100px">
-        <el-form-item label="图片名称" prop="resName">
-          <el-input v-model="form.resName" placeholder="请输入图片名称"/>
+      <el-form ref="booksRef" :model="form" :rules="rules" label-width="100px">
+        <el-form-item label="书籍名称" prop="bookName">
+          <el-input v-model="form.bookName" placeholder="请输入书籍名称"/>
         </el-form-item>
-        <el-form-item label="资源类型" prop="resType">
-          {{form.resType}}
-          <el-radio-group v-model="form.resType">
-            <el-radio
-                v-for="dict in res_type"
-                :key="dict.value"
-                :value="dict.value"
-            >{{ dict.label }}
-            </el-radio>
-          </el-radio-group>
+        <el-form-item label="作者" prop="author">
+          <el-input v-model="form.author" placeholder="请输入作者名称"/>
         </el-form-item>
         <el-row>
           <el-col :span="12">
@@ -125,18 +119,17 @@
           </el-col>
         </el-row>
         <el-form-item label="状态" prop="status">
-          {{form.status}}
           <el-radio-group v-model="form.status">
             <el-radio
-                v-for="dict in start_stop"
+                v-for="dict in upcoming_books"
                 :key="dict.value"
                 :value="dict.value"
             >{{ dict.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="图片上传" prop="resUrl">
+        <el-form-item label="封面" prop="coverUrl">
           <dyUpload
-              v-model="form.resUrl"
+              v-model="form.coverUrl"
               fileType="5"
           ></dyUpload>
         </el-form-item>
@@ -154,14 +147,14 @@
   </div>
 </template>
 
-<script setup name="ImageManager">
-import {addImg, listImg, listImgDetail, updateImg, delImg} from "@/api/web-manage/slidesshow";
+<script setup name="UpcomingBooks">
+import {addBooks, listBooks, listBooksDetail, updateBooks, delBooks} from "@/api/web-manage/upcoming_books";
 import {useRouter} from "vue-router";
 
 const router = useRouter();
 const {proxy} = getCurrentInstance();
-const {start_stop, res_type} = proxy.useDict("start_stop", "res_type");
-const imgList = ref([]);
+const {upcoming_books} = proxy.useDict("upcoming_books");
+const upcomingBookList = ref([]);
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -176,16 +169,16 @@ const data = reactive({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    resName: undefined,
+    bookName: undefined,
     status: undefined,
     resType:undefined,
   },
   rules: {
-    resName: [{required: true, message: "图片名称不能为空", trigger: "blur"}],
+    bookName: [{required: true, message: "书籍名称不能为空", trigger: "blur"}],
+    author: [{required: true, message: "作者", trigger: "blur"}],
     status: [{required: true, message: "请选择状态", trigger: "blur"}],
-    resType: [{required: true, message: "请选择资源类型", trigger: "blur"}],
     sortOrder: [{required: true, message: "请填写排序", trigger: "blur"}],
-    resUrl: [{required: true, message: "请上传图片", trigger: "blur"}],
+    coverUrl: [{required: true, message: "请上传封面", trigger: "blur"}],
   },
 });
 
@@ -194,8 +187,8 @@ const {queryParams, form, rules} = toRefs(data);
 /** 查询学校列表列表 */
 function getList() {
   loading.value = true;
-  listImg(queryParams.value).then(res => {
-    imgList.value = res.rows;
+  listBooks(queryParams.value).then(res => {
+    upcomingBookList.value = res.rows;
     total.value = res.total;
     loading.value = false;
   })
@@ -216,8 +209,8 @@ function resetQuery() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const roleIds = row.id || ids.value;
-  proxy.$modal.confirm('是否确认删除图片为"' + row.resName + '"的数据项?').then(function () {
-    return delImg(roleIds);
+  proxy.$modal.confirm('是否确认删除书籍为"' + row.bookName + '"的数据项?').then(function () {
+    return delBooks(roleIds);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
@@ -227,10 +220,10 @@ function handleDelete(row) {
 
 /** 导出按钮操作 */
 function handleExport() {
-  proxy.download("manage/resource/export", {
+  proxy.download("manage/books/export", {
     ...queryParams.value,
 
-  }, `resource_${new Date().getTime()}.xlsx`);
+  }, `即将上架书籍列表_${new Date().getTime()}.xlsx`);
 }
 
 /** 多选框选中数据 */
@@ -244,14 +237,14 @@ function handleSelectionChange(selection) {
 function reset() {
   form.value = {
     id: undefined,
-    resName: undefined,
-    resUrl: undefined,
+    bookName: undefined,
+    author:undefined,
+    coverUrl:undefined,
     sortOrder: undefined,
     status: undefined,
-    resType: undefined,
     remark: undefined,
   };
-  proxy.resetForm("imgRef");
+  proxy.resetForm("booksRef");
 }
 
 /** 添加资源 */
@@ -259,37 +252,36 @@ function handleAdd() {
   reset();
   //请求接口
   open.value = true;
-  title.value = "添加图片";
+  title.value = "添加待上架书籍";
 }
 
 /** 修改资源 */
 function handleUpdate(row) {
   reset();
   const id = row.id || ids.value
-  listImgDetail(id).then(res => {
+  listBooksDetail(id).then(res => {
     form.value = res.data
     form.status = res.data.status
-    form.resType = res.data.resType
     form.id = res.data.id
     open.value = true;
-    title.value = "修改图片信息";
+    title.value = "修改待上架书籍信息";
   })
 }
 
 /** 提交按钮 */
 function submitForm() {
-  proxy.$refs["imgRef"].validate(valid => {
+  proxy.$refs["booksRef"].validate(valid => {
     if (valid) {
       if (form.value.id != undefined) {
 
-        updateImg(form.value).then(response => {
+        updateBooks(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
         });
       } else {
 
-        addImg(form.value).then(response => {
+        addBooks(form.value).then(response => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           getList();

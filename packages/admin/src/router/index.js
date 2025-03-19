@@ -145,30 +145,46 @@ export const dynamicRoutes = [
     ]
   },
   {
-    path: '/teaching/college-auditTeacher',
+    path: '/teaching/teacher-textbook',
     component: Layout,
     hidden: true,
-    permissions: ['manage:college:list'],
+    permissions: ['system:teacher:list'],
     children: [
       {
-        path: 'index/:collegeId(\\d+)',
-        component: () => import('@/views/teaching/college/auditlist'),
-        name: 'Auditlist',
-        meta: { title: '老师审核', activeMenu: '/teaching/college' }
+        path: 'index/:teacherId(\\d+)',
+        component: () => import('@/views/teaching/teacher/index'),
+        name: 'Textbook',
+        meta: { title: '教材数据', activeMenu: '/teaching/teacher' }
       }
     ]
   },
   {
-    path: '/teaching/teacher-textbook',
+    path: '/teaching/course-evaluate',
     component: Layout,
     hidden: true,
-    permissions: ['manage:teacher:list'],
+    permissions: ['system:course:list'],
     children: [
       {
-        path: 'index/:teacherId(\\d+)',
-        component: () => import('@/views/teaching/teacher/textbook'),
-        name: 'Textbook',
-        meta: { title: '教材数据', activeMenu: '/teaching/teacher' }
+        path: 'index',
+        // path: 'index/:courseId(\\d+)',
+        component: () => import('@/views/teaching/course/evaluate/index'),
+        name: 'Evaluate',
+        meta: { title: '添加测评', activeMenu: '/teaching/course' }
+      }
+    ]
+  },
+  {
+    path: '/teaching/course-class',
+    component: Layout,
+    hidden: true,
+    permissions: ['system:class:list'],
+    children: [
+      {
+        path: 'index',
+        // path: 'index/:courseId(\\d+)',
+        component: () => import('@/views/teaching/course/class/index'),
+        name: 'Evaluate',
+        meta: { title: '添加测评', activeMenu: '/teaching/class' }
       }
     ]
   },

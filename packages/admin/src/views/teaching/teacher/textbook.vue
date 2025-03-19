@@ -126,10 +126,10 @@ function resetQuery() {
 
 /** 导出按钮操作 */
 function handleExport() {
-  // proxy.download("system/role/export", {
-  //   ...queryParams.value,
+  proxy.download("system/teacher/export", {
+    ...queryParams.value,
 
-  // }, `role_${new Date().getTime()}.xlsx`);
+  }, `老师列表_${new Date().getTime()}.xlsx`);
 }
 
 /** 多选框选中数据 */
