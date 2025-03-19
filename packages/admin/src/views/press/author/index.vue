@@ -1,17 +1,8 @@
-<!-- 书籍审核 -->
+<!-- 作者管理 -->
  <template>
    <div class="app-container">
       <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-         <el-form-item label="教材名称" prop="name">
-            <el-input
-               v-model="queryParams.name"
-               placeholder="请输入教材名称"
-               clearable
-               style="width: 240px"
-               @keyup.enter="handleQuery"
-            />
-         </el-form-item>  
-         <el-form-item label="书籍作者" prop="name">
+         <el-form-item label="作者名称" prop="name">
             <el-input
                v-model="queryParams.name"
                placeholder="请输入作者名称"
@@ -19,29 +10,21 @@
                style="width: 240px"
                @keyup.enter="handleQuery"
             />
-         </el-form-item>  
-         <el-form-item label="审核状态" prop="status">
-            <el-select
-               v-model="queryParams.status"
-               placeholder="请选择审核状态"
-               clearable
-               style="width: 240px"
-            >
-               <el-option
-                  v-for="dict in book_audit_status"
-                  :key="dict.value"
-                  :label="dict.label"
-                  :value="dict.value"
-               />
-            </el-select>
-         </el-form-item>
+         </el-form-item>   
          <el-form-item>
             <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button
+               type="primary"
+               plain
+               icon="Plus"
+               @click="handleUpdate(2)"
+               v-hasPermi="['manage:publisher:add']"
+            >新增</el-button>
          </el-form-item>
       </el-form>
       
       <el-table v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
-         <el-table-column label="封面" align="center" fixed="left" width="70"  >
+         <el-table-column label="头像" align="center" fixed="left" width="70"  >
             <template #default="scope">
                 <el-image
                     style="width: 50px; height: 50px"
@@ -53,12 +36,11 @@
                 /> 
             </template>
          </el-table-column>
-         <el-table-column label="书籍名称" align="center" fixed="left" prop="name"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="书籍作者" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="提交时间" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="处理人" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="处理时间" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="处理意见" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="作者名称" align="center" fixed="left" prop="name"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="联系电话" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="所属学校" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="简介" align="center" prop="phone" :show-overflow-tooltip="true"/>
+         
 
          <!-- <el-table-column label="是否开通" align="center" prop="status">
             <template #default="scope">
@@ -67,10 +49,10 @@
          </el-table-column> -->
 
   
-         <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width" fixed="right">
+         <el-table-column label="操作" align="center" width="300" class-name="small-padding fixed-width" fixed="right">
             <template #default="scope">
-               <el-button link type="primary" icon="SuccessFilled" @click="handleUpdate(1,scope.row)" v-hasPermi="['manage:publisher:Open']">通过</el-button>
-               <el-button link type="primary" icon="CircleCloseFilled" @click="handleUpdate(2,scope.row)" v-hasPermi="['manage:publisher:TurnOff']">驳回</el-button>
+               <el-button link type="primary" icon="Edit" @click="handleUpdate(1,scope.row)" v-hasPermi="['manage:publisher:edit']">修改</el-button>
+               <el-button link type="primary" icon="Delete" @click="handleUpdate(3,scope.row)" v-hasPermi="['manage:publisher:remove']">删除</el-button>
             </template>
          </el-table-column>
       </el-table>
@@ -149,21 +131,31 @@ function handleUpdate(type,row) {
     currentId.value = row?.publisherId || "";
 
     switch(type){
-        case 1:// 编辑基础数据
-            editType.value = 'resolve'
-            title.value = "同意意见";
+        case 1:// 编辑
+            editType.value = 'edit'
+            title.value = "修改作者信息";
             open.value = true;
         break;
-        case 2:// 新增图书
-            editType.value = 'reject'
-            title.value = "驳回意见";
+        case 2:// 新增
+            editType.value = 'add'
+            title.value = "新增作者";
             open.value = true;
         break; 
+        case 3:// 删除
+            proxy.$modal.confirm('是否确认删除？').then(()=> {
+                return pressDelApi(currentId.value);
+            }).then(() => {
+                getList();
+                proxy.$modal.msgSuccess("删除成功");
+            }).catch(() => {});
+        break;
+
 
     }
 
 }
  
+
 
 getList();
 </script>

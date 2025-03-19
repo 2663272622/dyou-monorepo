@@ -1,4 +1,4 @@
-<!-- 书籍审核 -->
+<!-- 图书订单 -->
  <template>
    <div class="app-container">
       <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
@@ -11,29 +11,14 @@
                @keyup.enter="handleQuery"
             />
          </el-form-item>  
-         <el-form-item label="书籍作者" prop="name">
-            <el-input
+         <el-form-item label="购买时间" prop="name">
+            <el-date-picker
                v-model="queryParams.name"
-               placeholder="请输入作者名称"
-               clearable
-               style="width: 240px"
-               @keyup.enter="handleQuery"
+                type="daterange"
+                start-placeholder="开始时间"
+                end-placeholder="截止时间"
+                :size="size"
             />
-         </el-form-item>  
-         <el-form-item label="审核状态" prop="status">
-            <el-select
-               v-model="queryParams.status"
-               placeholder="请选择审核状态"
-               clearable
-               style="width: 240px"
-            >
-               <el-option
-                  v-for="dict in book_audit_status"
-                  :key="dict.value"
-                  :label="dict.label"
-                  :value="dict.value"
-               />
-            </el-select>
          </el-form-item>
          <el-form-item>
             <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -41,7 +26,7 @@
       </el-form>
       
       <el-table v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
-         <el-table-column label="封面" align="center" fixed="left" width="70"  >
+         <el-table-column label="书籍封面" align="center" fixed="left" width="100"  >
             <template #default="scope">
                 <el-image
                     style="width: 50px; height: 50px"
@@ -55,10 +40,14 @@
          </el-table-column>
          <el-table-column label="书籍名称" align="center" fixed="left" prop="name"  width="200" :show-overflow-tooltip="true"/>
          <el-table-column label="书籍作者" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="提交时间" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="处理人" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="购买时间" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="购买方式" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="购数码/订单编号" align="center" prop="phone" :show-overflow-tooltip="true"/>
+        
+        
+         <!-- <el-table-column label="处理人" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
          <el-table-column label="处理时间" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="处理意见" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="处理意见" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/> -->
 
          <!-- <el-table-column label="是否开通" align="center" prop="status">
             <template #default="scope">
@@ -67,12 +56,11 @@
          </el-table-column> -->
 
   
-         <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width" fixed="right">
+         <!-- <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width" fixed="right">
             <template #default="scope">
-               <el-button link type="primary" icon="SuccessFilled" @click="handleUpdate(1,scope.row)" v-hasPermi="['manage:publisher:Open']">通过</el-button>
-               <el-button link type="primary" icon="CircleCloseFilled" @click="handleUpdate(2,scope.row)" v-hasPermi="['manage:publisher:TurnOff']">驳回</el-button>
+               <el-button link type="primary" icon="CircleCloseFilled" @click="handleUpdate(2,scope.row)" v-hasPermi="['manage:publisher:TurnOff']">退款</el-button>
             </template>
-         </el-table-column>
+         </el-table-column> -->
       </el-table>
 
       <pagination

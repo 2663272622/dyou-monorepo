@@ -58,6 +58,12 @@ export const constantRoutes = [
     hidden: true
   },
   {
+    path: '/editor',
+    name: 'editor',
+    component: () => import('@/components/dy-editor/index.vue'),
+    hidden: true
+  },
+  {
     path: '',
     component: Layout,
     redirect: '/index',
@@ -67,7 +73,7 @@ export const constantRoutes = [
         component: () => import('@/views/index'),
         name: 'Index',
         meta: { title: '首页', icon: 'dashboard', affix: true }
-      }
+      },
     ]
   },
   {

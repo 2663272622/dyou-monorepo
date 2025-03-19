@@ -2,7 +2,9 @@ import { defineConfig, loadEnv } from 'vite'
 import path from 'path'
 import createVitePlugins from './vite/plugins'
 import {viteMockServe} from "vite-plugin-mock";
-
+import { viteStaticCopy } from 'vite-plugin-static-copy'
+console.log('viteStaticCopy')
+console.log(viteStaticCopy)
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd())
@@ -18,7 +20,15 @@ export default defineConfig(({ mode, command }) => {
           mockPath: 'mock',// mock 数据文件所在的目录
           localEnabled: true, // 是否启用本地 mock 数据  VITE_APP_USE_MOCK
           prodEnabled: false, // 生产环境是否启用 mock
-        })
+        }),
+        viteStaticCopy({
+            targets: [
+                {
+                    src: "../static/Editor/tinymce/*",  
+                    dest: './',  
+                },
+            ],
+        }), 
     ],
     resolve: {
       // https://cn.vitejs.dev/config/#resolve-alias
@@ -30,6 +40,39 @@ export default defineConfig(({ mode, command }) => {
       },
       // https://cn.vitejs.dev/config/#resolve-extensions
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
+    },
+    /* 用途是将我们的constant.scss中的scss常量加载到全局，这样我们可以在style标签中，随意使用这些scss常量 */
+    build: {
+        rollupOptions:{
+            output: {
+                entryFileNames: 'js/[name].js',//入口文件
+                // entryFileNames: 'js/[name]-[hash].js',//入口文件
+                chunkFileNames: 'js/[name].js',//分包引入文件
+                // chunkFileNames: 'js/[name]-[hash].js',//分包引入文件
+                // assetFileNames: '[ext]/[name]-[hash].[ext]',//静态文件
+                assetFileNames(assetInfo){
+                    console.log(assetInfo)
+                    //文件名称
+                    if (assetInfo.name.endsWith('.css')) {
+                        return 'css/[name].css'
+                        // return 'css/[name]-[hash].css'
+                    }
+                    //图片名称
+                    //定义图片后缀
+                    const imgExts = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg','.ico']
+                    if(imgExts.some(ext => assetInfo.name.endsWith(ext))){
+                        return 'imgs/[name].[ext]'
+                        // return 'imgs/[name]-[hash].[ext]'
+                    }
+                    //剩余资源文件
+                    return 'assets/[name].[ext]'
+                    // return 'assets/[name]-[hash].[ext]'
+                }
+            }, 
+            external: ['/static/Editor/tinymce/tinymce.min.js','/static/Editor/tinymce/tinymce.js','/tinymce.js'] 
+          //   external: ['/static/Editor/tinymce/tinymce.min.js'],
+        },  
+        
     },
     // vite 相关配置
     server: {

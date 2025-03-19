@@ -24779,7 +24779,6 @@
       };
     };
     var createFormatSelect = function (editor, backstage) {
-        debugger
       return createSelectButton(editor, backstage, getSpec$3(editor));
     };
     var formatSelectMenu = function (editor, backstage) {

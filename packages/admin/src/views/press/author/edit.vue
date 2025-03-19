@@ -8,83 +8,34 @@
        <el-form ref="formRef" :model="formData"  :rules="rules" label-width="80px">
             <el-row :gutter="10">
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <el-form-item label="书籍名称" prop="name">
-                        <el-input v-model="formData.name" placeholder="请输入书籍名称" />
+                    <el-form-item label="作者名称" prop="name">
+                        <el-input v-model="formData.name" placeholder="请输入作者名称" />
                     </el-form-item>
-                </el-col>  
+                </el-col>   
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <el-form-item label="作者" prop="name">
-                        <el-input v-model="formData.name" placeholder="请输入作者" />
-                    </el-form-item>
-                </el-col>  
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <el-form-item label="封面" prop="logo">
+                    <el-form-item label="头像" prop="logo">
                         <dyUpload 
                             v-model="formData.logo"
                             fileType="5"
                         ></dyUpload>
                     </el-form-item>
-                </el-col>  
+                </el-col>   
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <el-form-item label="ISBN" prop="name">
-                        <el-input v-model="formData.name" placeholder="请输入ISBN" />
+                    <el-form-item label="联系电话" prop="phone">
+                        <el-input v-model="formData.phone"  type="number" placeholder="请输入联系电话" />
                     </el-form-item>
-                </el-col>  
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <el-form-item label="定价" prop="name">
-                        <el-input v-model="formData.name"  type="number" placeholder="请输入定价" />
-                    </el-form-item>
-                </el-col>  
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <el-form-item label="价格" prop="name">
-                        <el-input v-model="formData.name"  type="number" placeholder="请输入价格" />
-                    </el-form-item>
-                </el-col>  
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <el-form-item label="编辑电话" prop="phone">
-                        <el-input v-model="formData.phone"  type="number" placeholder="请输入电话" />
-                    </el-form-item>
-                </el-col>  
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <el-form-item label="出版日期" prop="name">
-                        <el-input v-model="formData.name" placeholder="请输入出版日期" />
-                    </el-form-item>
-                </el-col>  
+                </el-col>   
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="合作院校" prop="name">
                         <el-input v-model="formData.name" placeholder="请输入合作院校" />
                     </el-form-item>
-                </el-col>  
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <el-form-item label="教学层次" prop="name">
-                        <el-input v-model="formData.name" placeholder="请输入教学层次" />
-                    </el-form-item>
-                </el-col>  
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <el-form-item label="学科分类" prop="name">
-                        <el-input v-model="formData.name" placeholder="请选择学科分类" />
-                    </el-form-item>
-                </el-col>  
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <el-form-item label="标签" prop="name">
-                        <el-input v-model="formData.name" placeholder="请选择标签" />
-                    </el-form-item>
-                </el-col>  
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <el-form-item label="内容摘要" prop="name">
-                        <el-input v-model="formData.name" placeholder="请输入内容摘要" />
-                    </el-form-item>
-                </el-col>  
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <el-form-item label="特别说明" prop="name">
-                        <el-input v-model="formData.name" placeholder="请输入特别说明" />
-                    </el-form-item>
-                </el-col>  
+                </el-col>   
                 <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
-                    <el-form-item label="备注" prop="description">
-                        <el-input v-model="formData.description" type="textarea" placeholder="请输入内容"></el-input>
+                    <el-form-item label="简介" prop="description">
+                        <el-input v-model="formData.description" type="textarea" placeholder="请输入简介"></el-input>
                     </el-form-item>
                 </el-col>    
+
  
             </el-row>
  
