@@ -1,44 +1,44 @@
 import request from '@/utils/request'
 
 //添加学校列表
-export function addImg(query) {
+export function addBooks(query) {
     return request({
-        url: '/manage/resource',
+        url: '/manage/books',
         method: 'post',
         data: query
     })
 }
 
 // 查询学校列表
-export function listImg(query) {
+export function listBooks(query) {
     return request({
-        url: '/manage/resource/list',
+        url: '/manage/books/list',
         method: 'get',
         params: query
     })
 }
 
 //查询学校详情信息
-export function listImgDetail(imgId) {
+export function listBooksDetail(booksId) {
     return request({
-        url: '/manage/resource/' +  imgId,
+        url: '/manage/books/' +  booksId,
         method: 'get',
     })
 }
 
 // 修改学校列表
-export function updateImg(query) {
+export function updateBooks(query) {
     return request({
-        url: '/manage/resource',
+        url: '/manage/books',
         method: 'put',
         data: query
     })
 }
 
 // 删除学校列表
-export function delImg(imgIds) {
+export function delBooks(booksIds) {
     return request({
-        url: '/manage/resource/' +  imgIds,
+        url: '/manage/books/' +  booksIds,
         method: 'delete',
     })
 }

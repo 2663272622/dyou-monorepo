@@ -26,7 +26,7 @@
       </el-form-item>
       <el-form-item label="是否通过" prop="isStatus">
         <el-select v-model="queryParams.isStatus" placeholder="审核状态" clearable style="width: 240px">
-          <el-option v-for="dict in sch_audit_operation" :key="dict.value" :label="dict.label" :value="dict.value"/>
+          <el-option v-for="dict in tch_audit_operation" :key="dict.value" :label="dict.label" :value="dict.value"/>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -72,7 +72,7 @@
       </el-table-column>
       <el-table-column label="是否通过" prop="status" width="80">
         <template #default="scope">
-          <dict-tag :options="sch_audit_operation" :value="scope.row.isStatus" />
+          <dict-tag :options="tch_audit_operation" :value="scope.row.isStatus" />
         </template>
       </el-table-column>
       <el-table-column label="简介" prop="introduction" :show-overflow-tooltip="true" width="150" />
@@ -104,7 +104,7 @@
       <el-form ref="teacherRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="审核" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio v-for="dict in sch_audit_operation" :key="dict.value" :value="dict.value">{{
+            <el-radio v-for="dict in tch_audit_operation" :key="dict.value" :value="dict.value">{{
                 dict.label
               }}
             </el-radio>
@@ -131,7 +131,7 @@ import {useRouter} from "vue-router";
 import path from "path";
 const router = useRouter();
 const { proxy } = getCurrentInstance();
-const { sch_audit_status , sch_audit_operation} = proxy.useDict("sch_audit_status","sch_audit_operation");
+const { sch_audit_status , tch_audit_operation} = proxy.useDict("sch_audit_status","tch_audit_operation");
 const teacherList = ref([]);
 const open = ref(false);
 const loading = ref(true);
@@ -206,9 +206,8 @@ function resetQuery() {
 
 /** 查看使用教材操作 */
 function handleUseBook(row) {
-  console.log(row.teacherId)
-  router.push("/teaching/teacher-textbook/index/" + row.teacherId);
-
+  // router.push("/teaching/teacher-textbook/index/" + row.teacherId);
+  router.push("/teaching/teacher-textbook/index");
 }
 
 /** 审核按钮操作 */

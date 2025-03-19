@@ -79,7 +79,7 @@
       <el-table-column label="投稿人" prop="submitterName" :show-overflow-tooltip="true" width="150"/>
       <el-table-column label="联系电话" prop="submitterPhone" :show-overflow-tooltip="true" width="150"/>
       <el-table-column label="地址" prop="contactAddress" :show-overflow-tooltip="true" width="150"/>
-      <el-table-column label="地址" prop="topicName" :show-overflow-tooltip="true" width="150"/>
+      <el-table-column label="选题名称" prop="topicName" :show-overflow-tooltip="true" width="150"/>
       <el-table-column label="出版类型" width="150">
         <template #default="scope">
            <el-dict-tag :options="publication_category" :value="scope.row.publicationType"/>
@@ -114,7 +114,7 @@
   </div>
 </template>
 
-<script setup name="ImageManager">
+<script setup name="Contribute">
 import { listContribute, delContribute} from "@/api/web-manage/contribute";
 import {useRouter} from "vue-router";
 
@@ -179,7 +179,7 @@ function resetQuery() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const roleIds = row.id || ids.value;
-  proxy.$modal.confirm('是否确认删除图片为"' + row.submitterName + '"的数据项?').then(function () {
+  proxy.$modal.confirm('是否确认删除投稿为"' + row.submitterName + '"的数据项?').then(function () {
     return delContribute(roleIds);
   }).then(() => {
     getList();
@@ -193,7 +193,7 @@ function handleExport() {
   proxy.download("manage/submission/export", {
     ...queryParams.value,
 
-  }, `resource_${new Date().getTime()}.xlsx`);
+  }, `contribute_${new Date().getTime()}.xlsx`);
 }
 
 /** 多选框选中数据 */

@@ -106,7 +106,6 @@
           <el-input v-model="form.resName" placeholder="请输入图片名称"/>
         </el-form-item>
         <el-form-item label="资源类型" prop="resType">
-          {{form.resType}}
           <el-radio-group v-model="form.resType">
             <el-radio
                 v-for="dict in res_type"
@@ -124,7 +123,6 @@
           </el-col>
         </el-row>
         <el-form-item label="状态" prop="status">
-          {{form.status}}
           <el-radio-group v-model="form.status">
             <el-radio
                 v-for="dict in start_stop"

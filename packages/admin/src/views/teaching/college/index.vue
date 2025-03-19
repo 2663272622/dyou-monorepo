@@ -12,12 +12,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery" style="margin-right: 10px">搜索</el-button>
-<!--        <el-button icon="Refresh" @click="resetQuery">重置</el-button>-->
-        <el-tooltip class="item" effect="dark" content="审核列表" placement="top">
-          <el-badge :value="12" class="item">
-            <el-button circle icon="Bell" @click="audit" />
-          </el-badge>
-        </el-tooltip>
+        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
     <el-row :gutter="10" class="mb8">
@@ -27,6 +22,7 @@
             plain
             icon="Plus"
             @click="handleAdd"
+            v-hasPermi="['manage:college:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -36,6 +32,7 @@
             icon="Edit"
             :disabled="single"
             @click="handleUpdate"
+            v-hasPermi="['manage:college:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -45,6 +42,7 @@
             icon="Delete"
             :disabled="multiple"
             @click="handleDelete"
+            v-hasPermi="['manage:college:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -53,6 +51,7 @@
             plain
             icon="Download"
             @click="handleExport"
+            v-hasPermi="['manage:college:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
@@ -67,10 +66,10 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-tooltip content="修改" placement="top">
-            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
+            <el-button link type="primary" v-hasPermi="['manage:college:edit']"icon="Edit" @click="handleUpdate(scope.row)"></el-button>
           </el-tooltip>
           <el-tooltip content="删除" placement="top">
-            <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"></el-button>
+            <el-button link type="primary" v-hasPermi="['manage:college:remove']" icon="Delete" @click="handleDelete(scope.row)"></el-button>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -93,8 +92,8 @@
         <el-form-item label="院长" prop="dean">
           <el-input v-model="form.dean" placeholder="请输入院长" />
         </el-form-item>
-        <el-form-item label="学院logo" prop="logo">
-          <image-upload v-model="form.logo"/>
+        <el-form-item label="学院Logo" prop="collegeLogo">
+          <dyUpload v-model="form.collegeLogo"/>
         </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"></el-input>
@@ -111,10 +110,7 @@
 </template>
 
 <script setup name="College">
-import { addRole,delRole, listRole, updateRole } from "@/api/system/role";
-import {listCollege} from "@/api/teaching/college.js";
-import {useRouter} from "vue-router";
-const router = useRouter();
+import { addCollege , delCollege , listCollege , listCollegeDetail , updateCollege } from "@/api/teaching/college";
 const { proxy } = getCurrentInstance();
 
 const collegeList = ref([]);
@@ -126,8 +122,6 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
-const deptOptions = ref([]);
-const deptRef = ref(null);
 
 const data = reactive({
   form: {},
@@ -147,26 +141,11 @@ const { queryParams, form, rules } = toRefs(data);
 /** 查询学院列表列表 */
 function getList() {
   loading.value = true;
-  collegeList.value = [
-    {
-      collegeId: 1,
-      collegeName: '山东职业技术学院',
-      collegeCode: '1555555555',
-    },
-    {
-      collegeId: 2,
-      collegeName: '济南齐鲁大学',
-      collegeCode: '156448334',
-    }
-  ]
-  // listCollege(queryParams.value).then(res => {
-  //   collegeList.value = res.rows;
-  //   total.value = res.total;
-  //   loading.value = false;
-  // }).catch(err=>{
-  //   console.error(err)
+  listCollege(queryParams.value).then(res => {
+    collegeList.value = res.rows;
+    total.value = res.total;
     loading.value = false;
-  // })
+  })
 }
 
 /** 搜索按钮操作 */
@@ -183,9 +162,9 @@ function resetQuery() {
 
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const roleIds = row.collegeId || ids.value;
+  const collegeIds = row.collegeId || ids.value;
   proxy.$modal.confirm('是否确认删除"' + row.collegeName + '"的数据项?').then(function () {
-    return delRole(roleIds);
+    return delCollege(collegeIds);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
@@ -194,7 +173,7 @@ function handleDelete(row) {
 
 /** 导出按钮操作 */
 function handleExport() {
-  proxy.download("system/role/export", {
+  proxy.download("system/college/export", {
     ...queryParams.value,
 
   }, `college_${new Date().getTime()}.xlsx`);
@@ -213,7 +192,8 @@ function reset() {
     collegeId: undefined,
     collegeName: undefined,
     dean: undefined,
-    remark: undefined
+    remark: undefined,
+    collegeLogo:undefined
   };
   proxy.resetForm("collegeRef");
 }
@@ -229,9 +209,12 @@ function handleAdd() {
 /** 修改角色 */
 function handleUpdate(row) {
   reset();
- //请求接口
-  open.value = true;
-  title.value = "修改学院信息";
+  const collegeId = row.collegeId || ids.value
+  listCollegeDetail(collegeId).then(res => {
+    form.value = res.data
+    open.value = true;
+    title.value = "修改学校信息";
+  });
 }
 
 /** 提交按钮 */
@@ -240,14 +223,14 @@ function submitForm() {
     if (valid) {
       if (form.value.collegeId != undefined) {
 
-        updateRole(form.value).then(response => {
+        updateCollege(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
         });
       } else {
 
-        addRole(form.value).then(response => {
+        addCollege(form.value).then(response => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           getList();
@@ -264,8 +247,4 @@ function cancel() {
 }
 
 getList();
-
-function audit(){
-  router.push("/teaching/college-auditTeacher/index/1");
-}
 </script>

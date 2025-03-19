@@ -27,6 +27,7 @@
             plain
             icon="Plus"
             @click="handleAdd"
+            v-hasPermi="['manage:school:add']"
         >新增
         </el-button>
       </el-col>
@@ -37,25 +38,28 @@
             icon="Edit"
             :disabled="single"
             @click="handleUpdate"
+            v-hasPermi="['manage:school:edit']"
         >修改
         </el-button>
       </el-col>
-      <el-col :span="1.5">
-        <el-button
-            type="danger"
-            plain
-            icon="Delete"
-            :disabled="multiple"
-            @click="handleDelete"
-        >删除
-        </el-button>
-      </el-col>
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--            type="danger"-->
+<!--            plain-->
+<!--            icon="Delete"-->
+<!--            :disabled="multiple"-->
+<!--            @click="handleDelete"-->
+<!--            v-hasPermi="['manage:school:remove']"-->
+<!--        >删除-->
+<!--        </el-button>-->
+<!--      </el-col>-->
       <el-col :span="1.5">
         <el-button
             type="warning"
             plain
             icon="Download"
             @click="handleExport"
+            v-hasPermi="['manage:school:export']"
         >导出
         </el-button>
       </el-col>
@@ -90,9 +94,9 @@
           <el-tooltip content="修改" placement="top">
             <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
           </el-tooltip>
-          <el-tooltip content="删除" placement="top">
-            <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"></el-button>
-          </el-tooltip>
+<!--          <el-tooltip content="删除" placement="top">-->
+<!--            <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"></el-button>-->
+<!--          </el-tooltip>-->
         </template>
       </el-table-column>
     </el-table>
