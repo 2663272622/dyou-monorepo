@@ -17,6 +17,14 @@ export function listSchool(query) {
         params: query
     })
 }
+// 查询学校列表
+export function listAllSchoolApi(query) {
+    return request({
+        url: '/manage/school/getAllList',
+        method: 'get',
+        params: query
+    })
+}
 
 //查询学校详情信息
 export function listSchoolDetail(schoolId) {

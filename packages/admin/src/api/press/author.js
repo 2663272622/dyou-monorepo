@@ -1,57 +1,57 @@
 import request from '@/utils/request'
 
-// 新增出版社
-export function pressAddApi(data) {
+// 新增作者
+export function authorAddApi(data) {
     return request({
-      url: '/manage/publisher',
+      url: '/manage/author',
       method: 'post',
       data , 
       headers:{
       }
     })
 } 
-// 删除出版社
-export function pressDelApi(id) {
+// 删除作者
+export function authorDelApi(id) {
     return request({
-        url: '/manage/publisher/'+ id,
+        url: '/manage/author/'+ id,
         method: 'delete',
         headers:{
         }
     })
 } 
-//  编辑出版社
-export function pressEditApi(data) {
+//  编辑作者
+export function authorEditApi(data) {
     return request({
-        url: '/manage/publisher',
+        url: '/manage/author',
         method: 'put',
         data , 
         headers:{
         }
     })
 } 
-//  出版社详情
-export function pressInfoApi(id) {
+//  作者详情
+export function authorInfoApi(id) {
     return request({
-        url: '/manage/publisher/' + id,
+        url: '/manage/author/' + id,
         method: 'get',
         headers:{
         }
     })
 } 
-// 出版社列表
-export function pressListApi(params) {
+// 作者列表
+export function authorListApi(params) {
     return request({
-        url: '/manage/publisher/list',
+        url: '/manage/author/list',
         method: 'get',
         params , 
         headers:{
         }
     })
 } 
-// 出版社列表
-export function pressListAllApi(params) {
+// 作者所有列表
+export function authorAllListApi(params) {
     return request({
-        url: '/manage/publisher/getAllList',
+        url: '/manage/author/getAllList',
         method: 'get',
         params , 
         headers:{

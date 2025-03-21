@@ -22,10 +22,7 @@ export const fontSettings = {
 *
 * */
 export const plugins = [
-    "advlist",
-     "anchor",
-     "autolink",
-    //  "autoresize",
+    "advlist", "anchor", "autolink", "autoresize",
     "codesample", "colorpicker", "charmap", "contextmenu", "chapterHeader",
     "directionality", "directionality",
     "emoticons", "exercises", "extendVideo", "extend",
@@ -71,7 +68,6 @@ export const handleDestory = (id)=>{
 // 初始化编辑器
 export const handleInit = (cnf)=>{
     let token = cnf.token;
-    const uploadPath =  import.meta.env.VITE_APP_UPLOAD_URL + '/file/uploadCOS'
     window.tinymce.init({
         pagebreak_split_block:true,
         content_style:`img{max-width:100%;height:auto}p{margin-block-start: 0em; margin-block-end: 0em;}table{max-width:100%;height:auto}; `,
@@ -107,7 +103,7 @@ export const handleInit = (cnf)=>{
         powerpaste_html_import: 'propmt',// propmt, merge, clear
         powerpaste_allow_local_images: true,
         custom_undo_redo_levels:10,//设置撤回步数
-        // autoresize_overflow_padding: 50, //设置 padding
+        autoresize_overflow_padding: 50, //设置 padding
         //公式插件
         // external_plugins: {
         //   wordpaster: '../../../static/WordPaster/plugin/wordpaster.js',
@@ -209,9 +205,9 @@ export const handleInit = (cnf)=>{
           // }).catch(err => {
           //   failFun('出现未知问题，刷新页面，或者联系程序员: ' + err);
           // })
-        //   debugger
-          // const isLt1M = blobInfo.blob().size / 1024 / 1024 <= 1 
-          fetch(uploadPath, { 
+          // const isLt1M = blobInfo.blob().size / 1024 / 1024 <= 1
+          fetch(process.env.VUE_APP_UPLOAD_API+'file/uploadCOS', {
+        // fetch(process.env.VUE_APP_API_URL+'file/upload', {
             method: 'POST',
             body: formData,
             headers: {
@@ -257,8 +253,8 @@ export const handleInit = (cnf)=>{
             //   failFun('出现未知问题，刷新页面，或者联系程序员: ' + err);
             // })
             // const isLt1M = blobInfo.blob().size / 1024 / 1024 <= 1
-          // const isLt1M = blobInfo.blob().size / 1024 / 1024 <= 1 
-          fetch(uploadPath, {
+            fetch(process.env.VUE_APP_UPLOAD_API+'file/uploadCOS', {
+                // fetch(process.env.VUE_APP_API_URL +'file/upload', {
                   method: 'POST',
                   body: formData,
                   headers: {
@@ -293,50 +289,6 @@ export const newDid = ()=>{
 // 设置编辑器内容
 export const handleSet = (id,value)=>{
     window.tinymce.get(id).setContent(value);
-}
-
-// 获取编辑器内容
-export const EditorGet = (id,value)=>{
-    return window.tinymce.get(id).getContent()
-}
-// 获取编辑器内容
-export const EditorSet = (id,value)=>{
-    console.log(value)
-    window.tinymce.get(id).setContent(value);
-}
-// 设置编辑器内容
-export const EditorCleat = (id)=>{
-    window.tinymce.get(id).setContent('');
-}
-
-// 设置只读
-export const EditorDisabled = (id,bol)=>{
-    // 获取编辑器实例
-    var editor = window.tinymce.get(id);
-    console.log("设置",bol)
-    if(bol){
-        // 设置为只读模式
-        // editor.setMode('readonly');
-        
-        editor.settings.toolbar = false;  // 隐藏工具栏
-        editor.settings.menubar = false;  // 隐藏菜单栏
-        editor.settings.readonly = true;  // 隐藏菜单栏
-    }else{ 
-         
-        // 取消只读模式
-        // editor.setMode('design');
-
-        // // editor.ui.show()
-        // // editor.ui.showToolbar();  // 显示工具栏
-        
-        editor.settings.toolbar = toolbar;  // 隐藏工具栏
-        editor.settings.menubar = 'file edit insert view format table';  // 隐藏菜单栏
-        editor.settings.readonly = false;  // 隐藏菜单栏 
-    }
-    editor.remove();  // 移除当前编辑器实例
-    tinymce.init(editor.settings);  // 重新初始化编辑器
-
-
 }
 
 // 获取编辑器内容

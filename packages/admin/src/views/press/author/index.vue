@@ -2,9 +2,9 @@
  <template>
    <div class="app-container">
       <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-         <el-form-item label="作者名称" prop="name">
+         <el-form-item label="作者名称" prop="authorName">
             <el-input
-               v-model="queryParams.name"
+               v-model="queryParams.authorName"
                placeholder="请输入作者名称"
                clearable
                style="width: 240px"
@@ -28,7 +28,7 @@
             <template #default="scope">
                 <el-image
                     style="width: 50px; height: 50px"
-                    :src="scope.row.logo"
+                    :src="scope.row.profilePictureUrl"
                     :zoom-rate="1.2"
                     :max-scale="7"
                     :min-scale="0.2"
@@ -36,10 +36,10 @@
                 /> 
             </template>
          </el-table-column>
-         <el-table-column label="作者名称" align="center" fixed="left" prop="name"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="联系电话" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="所属学校" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="简介" align="center" prop="phone" :show-overflow-tooltip="true"/>
+         <el-table-column label="作者名称" align="center" fixed="left" prop="authorName"  width="200" :show-overflow-tooltip="true"/>
+         <!-- <el-table-column label="联系电话" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/> -->
+         <!-- <el-table-column label="所属学校" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/> -->
+         <el-table-column label="简介" align="center" prop="authorBlurb" :show-overflow-tooltip="true"/>
          
 
          <!-- <el-table-column label="是否开通" align="center" prop="status">
@@ -81,7 +81,7 @@
 import useDictStore from '@/store/modules/dict'
 import { listType, getType, delType, addType, updateType, refreshCache } from "@/api/system/dict/type";
 import editView from './edit'
-import { pressListApi,pressDelApi } from "@/api/press/press"
+import { authorListApi,authorDelApi } from "@/api/press/author"
 
 const { proxy } = getCurrentInstance();
 const { start_stop } = proxy.useDict("start_stop");
@@ -108,7 +108,7 @@ const queryParams = ref( {
 /** 查询列表 */
 function getList() {
   loading.value = true;
-  pressListApi(queryParams.value).then(response => {
+  authorListApi(queryParams.value).then(response => {
     typeList.value = response.rows;
     total.value = response.total;
     loading.value = false;
@@ -128,7 +128,7 @@ function handleSelectionChange(selection) { }
 /** 修改按钮操作 */
 function handleUpdate(type,row) {
     // 保存row  id
-    currentId.value = row?.publisherId || "";
+    currentId.value = row?.authorId || "";
 
     switch(type){
         case 1:// 编辑
@@ -143,7 +143,7 @@ function handleUpdate(type,row) {
         break; 
         case 3:// 删除
             proxy.$modal.confirm('是否确认删除？').then(()=> {
-                return pressDelApi(currentId.value);
+                return authorDelApi(currentId.value);
             }).then(() => {
                 getList();
                 proxy.$modal.msgSuccess("删除成功");
