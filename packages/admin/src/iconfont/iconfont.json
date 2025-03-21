@@ -1,0 +1,37 @@
+{
+  "id": "4863556",
+  "name": "点优教育后台管理系统",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "1770820",
+      "name": "成绩查询",
+      "font_class": "chengjichaxun",
+      "unicode": "e639",
+      "unicode_decimal": 58937
+    },
+    {
+      "icon_id": "4696644",
+      "name": "学分-01",
+      "font_class": "xuefen-",
+      "unicode": "e96b",
+      "unicode_decimal": 59755
+    },
+    {
+      "icon_id": "12278924",
+      "name": "发布作业",
+      "font_class": "fabuzuoye",
+      "unicode": "e718",
+      "unicode_decimal": 59160
+    },
+    {
+      "icon_id": "16642592",
+      "name": "发布考试",
+      "font_class": "fabukaoshi",
+      "unicode": "e638",
+      "unicode_decimal": 58936
+    }
+  ]
+}

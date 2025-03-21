@@ -186,11 +186,11 @@ export const dynamicRoutes = [
     permissions: ['system:class:list'],
     children: [
       {
-        path: 'index',
-        // path: 'index/:courseId(\\d+)',
+        // path: 'index',
+        path: 'index/:courseId(\\d+)',
         component: () => import('@/views/teaching/course/class/index'),
         name: 'Evaluate',
-        meta: { title: '添加测评', activeMenu: '/teaching/class' }
+        meta: { title: '班级管理', activeMenu: '/teaching/class' }
       }
     ]
   },

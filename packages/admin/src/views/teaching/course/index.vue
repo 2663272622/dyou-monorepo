@@ -80,26 +80,20 @@
       <el-table-column label="修改时间" prop="updateTime" :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-tooltip content="修改" placement="top">
-            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
-          </el-tooltip>
-          <el-tooltip content="班级" placement="top">
-            <el-button link type="primary" icon="User" @click="handleClass(scope.row)"></el-button>
-          </el-tooltip>
-          <el-tooltip content="去评测" placement="top">
-            <el-dropdown class="evaluate" @command="(command)=>{handleCommand(command, scope.row, scope.$index)}" trigger="click">
-              <el-icon><CircleCheck /></el-icon>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="homework">作业</el-dropdown-item>
-                  <el-dropdown-item command="exam">考试</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </el-tooltip>
-          <el-tooltip content="删除" placement="top">
-            <el-button style="margin-left: 12px" link type="primary" icon="Delete" @click="handleDelete(scope.row)"></el-button>
-          </el-tooltip>
+          <el-dropdown @command="(command)=>{handleCommand(command, scope.row, scope.$index)}" trigger="click">
+            <span class="el-dropdown-link">
+              更多<el-icon class="el-icon--right"><arrow-down /></el-icon>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="homework"><i style="font-size: 14px;" class="el-icon iconfont icon-fabuzuoye"></i>发布作业</el-dropdown-item>
+                <el-dropdown-item command="exam" divided><i style="font-size: 14px;" class="el-icon iconfont icon-fabukaoshi"></i>发布考试</el-dropdown-item>
+                <el-dropdown-item command="update" divided><el-icon><Edit /></el-icon>修改</el-dropdown-item>
+                <el-dropdown-item command="class" divided><el-icon><Menu /></el-icon>班级</el-dropdown-item>
+                <el-dropdown-item command="remove" divided><el-icon><Delete /></el-icon>删除</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </template>
       </el-table-column>
     </el-table>
@@ -282,16 +276,26 @@ function handleExport() {
 
 function handleClass(row){
   //跳转
-  router.push("/teaching/course/class/" + row.courseId);
+  router.push("/teaching/course-class/index/" + row.courseId);
 }
 
 function handleCommand(command,row,index) {
+  console.log(command)
   switch (command) {
     case "homework":
       goEvaluate(1)
       break;
     case "exam":
       goEvaluate(2)
+      break;
+      case "update":
+        handleUpdate(row)
+      break;
+    case "class":
+      handleClass(row)
+      break;
+      case "remove":
+        handleDelete(row)
       break;
     default:
       break;
