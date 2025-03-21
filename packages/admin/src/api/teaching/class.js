@@ -1,15 +1,6 @@
 import request from '@/utils/request'
 
-
-// 新增班级列表
-export function addClass(query) {
-    return request({
-        url: '/manage/class',
-        method: 'post',
-        data: query
-    })
-}
-// 查询班级列表
+// 查询课程班级列表
 export function listClass(query) {
     return request({
         url: '/manage/class/list',
@@ -18,27 +9,36 @@ export function listClass(query) {
     })
 }
 
-//查询班级详情信息
-export function listClassDetail(classId) {
+// 查询课程班级详细
+export function getClass(classId) {
     return request({
-        url: '/manage/class/' +  classId,
-        method: 'get',
+        url: '/manage/class/' + classId,
+        method: 'get'
     })
 }
 
-// 修改班级列表
-export function updateClass(query) {
+// 新增课程班级
+export function addClass(data) {
+    return request({
+        url: '/manage/class',
+        method: 'post',
+        data: data
+    })
+}
+
+// 修改课程班级
+export function updateClass(data) {
     return request({
         url: '/manage/class',
         method: 'put',
-        data: query
+        data: data
     })
 }
 
-// 删除班级列表
-export function delClass(classIds) {
+// 删除课程班级
+export function delClass(classId) {
     return request({
-        url: '/manage/class/' +  classIds,
-        method: 'delete',
+        url: '/manage/class/' + classId,
+        method: 'delete'
     })
 }

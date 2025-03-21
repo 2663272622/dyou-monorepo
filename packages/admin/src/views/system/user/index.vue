@@ -10,9 +10,12 @@
                         style="margin-bottom: 20px"/>
             </div>
             <div class="head-container">
-              <el-tree :data="deptOptions" :props="{ label: 'label', children: 'children' }"
-                       :expand-on-click-node="false" :filter-node-method="filterNode" ref="deptTreeRef" node-key="id"
-                       highlight-current default-expand-all @node-click="handleNodeClick"/>
+              <div v-for="item in deptOptions" :key="item.deptType">
+                <dict-tag :options="plat_type" class="type" :value="item.deptType"></dict-tag>
+                <el-tree v-for="it in item.deptTree" :data="it" :props="{ label: 'label', children: 'children' }"
+                         :expand-on-click-node="false" :filter-node-method="filterNode" ref="deptTreeRef" node-key="id"
+                         highlight-current default-expand-all @node-click="handleNodeClick"/>
+              </div>
             </div>
           </el-col>
         </pane>
@@ -64,6 +67,9 @@
                 <el-button type="warning" plain icon="Download" @click="handleExport"
                            v-hasPermi="['system:user:export']">导出
                 </el-button>
+              </el-col>
+              <el-col :span="1.5">
+                <el-button color="#626aef" plain icon="Link" @click="handleExport">审核</el-button>
               </el-col>
               <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
             </el-row>
@@ -226,12 +232,13 @@ import {
 import {Splitpanes, Pane} from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 import {useRouter} from "vue-router";
+import DictTag from "@/components/DictTag/index.vue";
 
 const router = useRouter();
 const appStore = useAppStore();
 const userInfo = useUserStore();
 const {proxy} = getCurrentInstance();
-const {sys_normal_disable} = proxy.useDict("sys_normal_disable");
+const {sys_normal_disable,plat_type} = proxy.useDict("sys_normal_disable","plat_type");
 
 const userList = ref([]);
 const open = ref(false);
@@ -542,3 +549,9 @@ function submitForm() {
 getDeptTree();
 getList();
 </script>
+<style>
+.type{
+  color:#606266;
+  font-size: 14px;
+}
+</style>

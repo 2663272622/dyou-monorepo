@@ -19,20 +19,21 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="书号" prop="ISBN">
+        <el-input
+            v-model="queryParams.ISBN"
+            placeholder="请输入书号"
+            clearable
+            style="width: 240px"
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
     <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-            type="warning"
-            plain
-            icon="Download"
-            @click="handleExport"
-        >导出</el-button>
-      </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
@@ -59,8 +60,8 @@
   </div>
 </template>
 
-<script setup name="Teacher">
-import {listTextbook} from "@/api/teaching/textbook";
+<script setup name="School">
+import {listShoolBook} from "@/api/teaching/schoolBook";
 const textbookList = ref([]);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -73,6 +74,7 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     author: undefined,
+    ISBN:undefined,
   },
 });
 
@@ -81,7 +83,7 @@ const { queryParams } = toRefs(data);
 /** 查询学院列表列表 */
 function getList() {
   loading.value = true;
-  listTextbook(queryParams.value).then(res => {
+  listShoolBook(queryParams.value).then(res => {
     textbookList.value = res.rows;
     total.value = res.total;
     loading.value = false;
@@ -99,16 +101,6 @@ function resetQuery() {
   proxy.resetForm("queryRef");
   handleQuery();
 }
-
-
-/** 导出按钮操作 */
-function handleExport() {
-  proxy.download("mangae/textbook/export", {
-    ...queryParams.value,
-
-  }, `我的教材_${new Date().getTime()}.xlsx`);
-}
-
 
 getList();
 </script>

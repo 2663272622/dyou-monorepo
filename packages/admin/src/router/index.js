@@ -154,11 +154,11 @@ export const dynamicRoutes = [
     path: '/teaching/teacher-textbook',
     component: Layout,
     hidden: true,
-    permissions: ['system:teacher:list'],
+    permissions: ['manage:teacher:list'],
     children: [
       {
         path: 'index/:teacherId(\\d+)',
-        component: () => import('@/views/teaching/teacher/index'),
+        component: () => import('@/views/teaching/teacher/textbook'),
         name: 'Textbook',
         meta: { title: '教材数据', activeMenu: '/teaching/teacher' }
       }
@@ -168,11 +168,11 @@ export const dynamicRoutes = [
     path: '/teaching/course-evaluate',
     component: Layout,
     hidden: true,
-    permissions: ['system:course:list'],
+    permissions: ['manage:course:list'],
     children: [
       {
-        path: 'index',
-        // path: 'index/:courseId(\\d+)',
+        // path: 'index',
+        path: 'index/:courseId(\\d+)',
         component: () => import('@/views/teaching/course/evaluate/index'),
         name: 'Evaluate',
         meta: { title: '添加测评', activeMenu: '/teaching/course' }
@@ -183,14 +183,27 @@ export const dynamicRoutes = [
     path: '/teaching/course-class',
     component: Layout,
     hidden: true,
-    permissions: ['system:class:list'],
+    permissions: ['manage:course:list'],
     children: [
       {
-        // path: 'index',
         path: 'index/:courseId(\\d+)',
         component: () => import('@/views/teaching/course/class/index'),
-        name: 'Evaluate',
-        meta: { title: '班级管理', activeMenu: '/teaching/class' }
+        name: 'Class',
+        meta: { title: '班级管理', activeMenu: '/teaching/course'},
+      },
+    ]
+  },
+  {
+    path: '/teaching/course-students',
+    component: Layout,
+    hidden: true,
+    permissions: ['system:course:list'],
+    children: [
+      {
+        path: 'index/:classId(\\d+)',
+        component: () => import('@/views/teaching/course/class/student'),
+        name: 'Class',
+        meta: { title: '学生管理', activeMenu: '/teaching/course'},
       }
     ]
   },

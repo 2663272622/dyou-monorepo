@@ -1,14 +1,5 @@
 import request from '@/utils/request'
 
-//添加课程列表
-export function addCourse(query) {
-    return request({
-        url: '/manage/course',
-        method: 'post',
-        data: query
-    })
-}
-
 // 查询课程列表
 export function listCourse(query) {
     return request({
@@ -18,27 +9,45 @@ export function listCourse(query) {
     })
 }
 
-//查询课程详情信息
-export function listCourseDetail(courseId) {
+// 查询课程详细
+export function getCourse(courseId) {
     return request({
-        url: '/manage/course/' +  courseId,
-        method: 'get',
+        url: '/manage/course/' + courseId,
+        method: 'get'
     })
 }
 
-// 修改课程列表
-export function updateCourse(query) {
+// 新增课程
+export function addCourse(data) {
+    return request({
+        url: '/manage/course',
+        method: 'post',
+        data: data
+    })
+}
+
+// 修改课程
+export function updateCourse(data) {
     return request({
         url: '/manage/course',
         method: 'put',
-        data: query
+        data: data
     })
 }
 
-// 删除课程列表
-export function delCourse(courseIds) {
+// 删除课程
+export function delCourse(courseId) {
     return request({
-        url: '/manage/course/' +  courseIds,
-        method: 'delete',
+        url: '/manage/course/' + courseId,
+        method: 'delete'
+    })
+}
+
+// 查询老师书籍列表
+export function listTextbook(query) {
+    return request({
+        url: 'manage/bookshelf/getAllList',
+        method: 'get',
+        params: query
     })
 }

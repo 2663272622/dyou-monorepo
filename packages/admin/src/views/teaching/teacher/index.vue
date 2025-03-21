@@ -1,32 +1,86 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" v-show="showSearch" :inline="true" label-width="68px">
-      <el-form-item label="老师姓名" prop="teacherName">
+    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="100px">
+      <el-form-item label="学校名称" prop="schoolName">
+        <el-input
+            v-model="queryParams.schoolName"
+            placeholder="请输入学校名称"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="学校类目" prop="schoolCategory">
+        <el-input
+            v-model="queryParams.schoolCategory"
+            placeholder="请输入学校类目（如：985/211/普通本科）"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="学院名称" prop="collegeName">
+        <el-input
+            v-model="queryParams.collegeName"
+            placeholder="请输入学院名称"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="姓名" prop="teacherName">
         <el-input
             v-model="queryParams.teacherName"
-            placeholder="请输入老师姓名"
+            placeholder="请输入姓名"
             clearable
-            style="width: 240px"
             @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="手机号" prop="phone">
         <el-input
-            v-model="queryParams.phoneNumber"
-            placeholder="请输入老师手机号"
+            v-model="queryParams.phone"
+            placeholder="请输入手机号"
             clearable
-            style="width: 240px"
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="审核状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="审核状态" clearable style="width: 240px">
-          <el-option v-for="dict in sch_audit_status" :key="dict.value" :label="dict.label" :value="dict.value" />
-        </el-select>
+      <el-form-item label="职位" prop="position">
+        <el-input
+            v-model="queryParams.position"
+            placeholder="请输入职位（如：系主任）"
+            clearable
+            @keyup.enter="handleQuery"
+        />
       </el-form-item>
-      <el-form-item label="是否通过" prop="isStatus">
-        <el-select v-model="queryParams.isStatus" placeholder="审核状态" clearable style="width: 240px">
-          <el-option v-for="dict in tch_audit_operation" :key="dict.value" :label="dict.label" :value="dict.value"/>
+      <el-form-item label="职称" prop="title">
+        <el-input
+            v-model="queryParams.title"
+            placeholder="请输入职称（如：教授）"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="专业领域" prop="major">
+        <el-input
+            v-model="queryParams.major"
+            placeholder="请输入专业领域"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="主授课程名称" prop="courseName">
+        <el-input
+            v-model="queryParams.courseName"
+            placeholder="请输入主授课程名称"
+            clearable
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="认证状态" prop="authenticationStatus" >
+        <el-select v-model="queryParams.authenticationStatus" placeholder="请选择认证状态"  clearable style="width: 200px">
+          <el-option
+              v-for="dict in authentication_status"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -34,7 +88,27 @@
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
+
     <el-row :gutter="10" class="mb8">
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--            type="primary"-->
+<!--            plain-->
+<!--            icon="Plus"-->
+<!--            @click="handleAdd"-->
+<!--            v-hasPermi="['manage:teacher:add']"-->
+<!--        >新增</el-button>-->
+<!--      </el-col>-->
+      <el-col :span="1.5">
+        <el-button
+            type="success"
+            plain
+            icon="Edit"
+            :disabled="single"
+            @click="handleUpdate"
+            v-hasPermi="['manage:teacher:edit']"
+        >审核</el-button>
+      </el-col>
       <el-col :span="1.5">
         <el-button
             type="danger"
@@ -42,6 +116,7 @@
             icon="Delete"
             :disabled="multiple"
             @click="handleDelete"
+            v-hasPermi="['manage:teacher:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -50,68 +125,113 @@
             plain
             icon="Download"
             @click="handleExport"
+            v-hasPermi="['manage:teacher:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <!-- 表格数据 -->
     <el-table v-loading="loading" :data="teacherList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="头像" :show-overflow-tooltip="true" width="150" >
+      <el-table-column label="学校名称" align="center" prop="schoolName" />
+      <el-table-column label="学校LOGO" align="center">
         <template #default="scope">
-         <ImagePreview :src="scope.row.avatar"></ImagePreview>
+          <image-preview :src="scope.row.schoolLogo"></image-preview>
         </template>
       </el-table-column>
-      <el-table-column label="教师姓名" prop="teacherName" :show-overflow-tooltip="true" width="150" />
-      <el-table-column label="手机号" prop="phoneNumber" :show-overflow-tooltip="true" width="150" />
-      <el-table-column label="审核状态" prop="status" width="80">
+      <el-table-column label="学校类目" align="center" prop="schoolCategory" />
+      <el-table-column label="学院名称" align="center" prop="collegeName" />
+      <el-table-column label="姓名" align="center" prop="teacherName" />
+      <el-table-column label="手机号" align="center" prop="phone" />
+      <el-table-column label="邮箱" align="center" prop="email" />
+      <el-table-column label="职位" align="center" prop="position" />
+      <el-table-column label="职称" align="center" prop="title" />
+      <el-table-column label="专业领域" align="center" prop="major" />
+      <el-table-column label="办公地址" align="center" prop="address" />
+      <el-table-column label="主授课程名称" align="center" prop="courseName" />
+      <el-table-column label="工作证件" align="center" >
         <template #default="scope">
-          <dict-tag :options="sch_audit_status" :value="scope.row.status" />
+          <image-preview :src="scope.row.credential"></image-preview>
         </template>
       </el-table-column>
-      <el-table-column label="是否通过" prop="status" width="80">
+      <el-table-column label="认证状态" align="center" prop="authenticationStatus">
         <template #default="scope">
-          <dict-tag :options="tch_audit_operation" :value="scope.row.isStatus" />
+          <dict-tag :options="authentication_status" :value="scope.row.authenticationStatus"/>
         </template>
       </el-table-column>
-      <el-table-column label="简介" prop="introduction" :show-overflow-tooltip="true" width="150" />
+      <el-table-column label="备注信息" align="center" prop="remark" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-tooltip content="使用教材" placement="top">
-            <el-button link type="primary" icon="reading" @click="handleUseBook(scope.row)"></el-button>
-          </el-tooltip>
-          <el-tooltip content="审核" placement="top">
-            <el-button link type="primary" icon="edit" @click="handleAudit(scope.row)"></el-button>
-          </el-tooltip>
-          <el-tooltip content="删除" placement="top">
-            <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"></el-button>
-          </el-tooltip>
+          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['manage:teacher:edit']">审核</el-button>
+          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['manage:teacher:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <pagination
-        v-show="total > 0"
+        v-show="total>0"
         :total="total"
         v-model:page="queryParams.pageNum"
         v-model:limit="queryParams.pageSize"
         @pagination="getList"
     />
 
-    <!-- 添加或修改老师对话框 -->
-    <el-dialog :title="title" v-model="open" width="500px" append-to-body>
+    <!-- 添加或修改教师信息对话框 -->
+    <el-dialog :title="title" v-model="open" width="600px" append-to-body>
       <el-form ref="teacherRef" :model="form" :rules="rules" label-width="100px">
-        <el-form-item label="审核" prop="status">
-          <el-radio-group v-model="form.status">
-            <el-radio v-for="dict in tch_audit_operation" :key="dict.value" :value="dict.value">{{
-                dict.label
-              }}
-            </el-radio>
+        <el-form-item label="学校名称" prop="schoolName">
+          <el-input v-model="form.schoolName" placeholder="请输入学校名称" :disabled="true" />
+        </el-form-item>
+        <el-form-item label="学校LOGO" prop="schoolLogo">
+          <image-preview :src="form.schoolLogo"></image-preview>
+        </el-form-item>
+        <el-form-item label="学校类目" prop="schoolCategory">
+          <el-input v-model="form.schoolCategory" placeholder="请输入学校类目" :disabled="true" />
+        </el-form-item>
+        <el-form-item label="学院名称" prop="collegeName">
+          <el-input v-model="form.collegeName" placeholder="请输入学院名称" :disabled="true" />
+        </el-form-item>
+        <el-form-item label="姓名" prop="teacherName">
+          <el-input v-model="form.teacherName" placeholder="请输入姓名" :disabled="true" />
+        </el-form-item>
+        <el-form-item label="手机号" prop="phone">
+          <el-input v-model="form.phone" placeholder="请输入手机号" :disabled="true" />
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="form.email" placeholder="请输入邮箱" :disabled="true" />
+        </el-form-item>
+        <el-form-item label="职位" prop="position">
+          <el-input v-model="form.position" placeholder="请输入职位" :disabled="true" />
+        </el-form-item>
+        <el-form-item label="职称" prop="title">
+          <el-input v-model="form.title" placeholder="请输入职称" :disabled="true" />
+        </el-form-item>
+        <el-form-item label="专业领域" prop="major">
+          <el-input v-model="form.major" placeholder="请输入专业领域" :disabled="true" />
+        </el-form-item>
+        <el-form-item label="办公地址" prop="address">
+          <el-input v-model="form.address" placeholder="请输入办公地址" :disabled="true" />
+        </el-form-item>
+        <el-form-item label="主授课程名称" prop="courseName">
+          <el-input v-model="form.courseName" placeholder="请输入主授课程名称" :disabled="true" />
+        </el-form-item>
+        <el-form-item label="工作证件" prop="credential">
+          <image-preview :src="form.credential"></image-preview>
+        </el-form-item>
+        <el-form-item label="认证状态" prop="authenticationStatus">
+          <dict-tag :options="authentication_status" :value="form.authenticationStatus"/>
+        </el-form-item>
+        <el-form-item label="审核" prop="authenticationStatus">
+          <el-radio-group v-model="form.authenticationStatus">
+            <el-radio
+                v-for="dict in tch_audit_operation"
+                :key="dict.value"
+                :label="dict.value"
+            >{{dict.label}}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="备注">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"></el-input>
+        <el-form-item label="备注信息" prop="remark">
+          <el-input type="textarea" v-model="form.remark" placeholder="请输入备注信息" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -125,13 +245,12 @@
 </template>
 
 <script setup name="Teacher">
-import { delRole, updateRole } from "@/api/system/role";
-import {listCollege} from "@/api/teaching/college.js";
-import {useRouter} from "vue-router";
-import path from "path";
-const router = useRouter();
+import { listTeacher, getTeacher, delTeacher, addTeacher, updateTeacher } from "@/api/teaching/teacher";
+import ImagePreview from "@/components/ImagePreview/index.vue";
+
 const { proxy } = getCurrentInstance();
-const { sch_audit_status , tch_audit_operation} = proxy.useDict("sch_audit_status","tch_audit_operation");
+const { authentication_status,tch_audit_operation } = proxy.useDict('authentication_status','tch_audit_operation');
+
 const teacherList = ref([]);
 const open = ref(false);
 const loading = ref(true);
@@ -142,54 +261,88 @@ const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
 
-
 const data = reactive({
   form: {},
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    teacherName: undefined,
-    status:undefined,
-    isStatus:undefined,
+    schoolName: null,
+    schoolCategory: null,
+    collegeName: null,
+    teacherName: null,
+    phone: null,
+    email: null,
+    position: null,
+    title: null,
+    major: null,
+    courseName: null,
+    authenticationStatus: null,
   },
   rules: {
-    teacherName: [{ required: true, message: "老师名称不能为空", trigger: "blur" }],
-  },
+    schoolName: [
+      { required: true, message: "学校名称不能为空", trigger: "blur" }
+    ],
+    schoolCategory: [
+      { required: true, message: "学校类目不能为空", trigger: "blur" }
+    ],
+    collegeName: [
+      { required: true, message: "学院名称不能为空", trigger: "blur" }
+    ],
+    teacherName: [
+      { required: true, message: "姓名不能为空", trigger: "blur" }
+    ],
+    phone: [
+      { required: true, message: "手机号不能为空", trigger: "blur" }
+    ],
+    credential: [
+      { required: true, message: "工作证件存储路径/URL不能为空", trigger: "blur" }
+    ],
+  }
 });
 
 const { queryParams, form, rules } = toRefs(data);
 
-/** 查询学院列表列表 */
+/** 查询教师信息列表 */
 function getList() {
   loading.value = true;
-  teacherList.value = [
-    {
-      teacherId:1,
-      teacherName: '张三',
-      phoneNumber:'1555555555',
-      status:0,
-      isStatus:1,
-      avatar:'/src/assets/images/profile.jpg',
-      introduction:'测试hfghfghfghfgh'
-    },
-    {
-      teacherId:2,
-      teacherName: '李四',
-      phoneNumber:'156448334',
-      status:0,
-      isStatus:0,
-      avatar:'/src/assets/images/profile.jpg',
-      introduction:'测试1fghfghfghfgh'
-    }
-  ]
-  // listCollege(queryParams.value).then(res => {
-  //   teacherList.value = res.rows;
-  //   total.value = res.total;
+  listTeacher(queryParams.value).then(response => {
+    teacherList.value = response.rows;
+    total.value = response.total;
     loading.value = false;
-  // }).catch(err=>{
-  //   console.error(err)
-  //   loading.value = false;
-  // })
+  });
+}
+
+// 取消按钮
+function cancel() {
+  open.value = false;
+  reset();
+}
+
+// 表单重置
+function reset() {
+  form.value = {
+    id: null,
+    schoolName: null,
+    schoolLogo: null,
+    schoolCategory: null,
+    collegeName: null,
+    teacherName: null,
+    phone: null,
+    email: null,
+    position: null,
+    title: null,
+    major: null,
+    address: null,
+    courseName: null,
+    credential: null,
+    authenticationStatus: null,
+    remark: null,
+    createBy: null,
+    createTime: null,
+    updateBy: null,
+    updateTime: null
+  };
+  proxy.resetForm("teacherRef");
 }
 
 /** 搜索按钮操作 */
@@ -204,30 +357,57 @@ function resetQuery() {
   handleQuery();
 }
 
-/** 查看使用教材操作 */
-function handleUseBook(row) {
-  // router.push("/teaching/teacher-textbook/index/" + row.teacherId);
-  router.push("/teaching/teacher-textbook/index");
+// 多选框选中数据
+function handleSelectionChange(selection) {
+  ids.value = selection.map(item => item.id);
+  single.value = selection.length != 1;
+  multiple.value = !selection.length;
 }
 
-/** 审核按钮操作 */
-function handleAudit(row) {
-  open.value = true
-  title.value = '审核信息'
-  // const roleIds = row.teacherId || ids.value;
-  // proxy.$modal.confirm('是否确认删除学院为"' + roleIds + '"的数据项?').then(function () {
-  //   return delRole(roleIds);
-  // }).then(() => {
-  //   getList();
-  //   proxy.$modal.msgSuccess("删除成功");
-  // }).catch(() => {});
+/** 新增按钮操作 */
+function handleAdd() {
+  reset();
+  // open.value = true;
+  // title.value = "添加教师信息";
+}
+
+/** 修改按钮操作 */
+function handleUpdate(row) {
+  reset();
+  const _id = row.id || ids.value
+  getTeacher(_id).then(response => {
+    form.value = response.data;
+    open.value = true;
+    title.value = "修改教师信息";
+  });
+}
+
+/** 提交按钮 */
+function submitForm() {
+  proxy.$refs["teacherRef"].validate(valid => {
+    if (valid) {
+      if (form.value.id != null) {
+        updateTeacher(form.value).then(response => {
+          proxy.$modal.msgSuccess("修改成功");
+          open.value = false;
+          getList();
+        });
+      } else {
+        addTeacher(form.value).then(response => {
+          proxy.$modal.msgSuccess("新增成功");
+          open.value = false;
+          getList();
+        });
+      }
+    }
+  });
 }
 
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const roleIds = row.teacherId || ids.value;
-  proxy.$modal.confirm('是否确认删除学院为"' + roleIds + '"的数据项?').then(function () {
-    return delRole(roleIds);
+  const _ids = row.id || ids.value;
+  proxy.$modal.confirm('是否确认删除教师信息编号为"' + _ids + '"的数据项？').then(function() {
+    return delTeacher(_ids);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
@@ -236,47 +416,9 @@ function handleDelete(row) {
 
 /** 导出按钮操作 */
 function handleExport() {
-  // proxy.download("system/role/export", {
-  //   ...queryParams.value,
-
-  // }, `role_${new Date().getTime()}.xlsx`);
-}
-
-/** 多选框选中数据 */
-function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.teacherId);
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
-}
-
-/** 重置新增的表单以及其他数据  */
-function reset() {
-  form.value = {
-    schoolId: undefined,
-    teacherName: undefined,
-    remark: undefined
-  };
-  proxy.resetForm("teacherRef");
-}
-
-
-/** 提交按钮 */
-function submitForm() {
-  proxy.$refs["teacherRef"].validate(valid => {
-    if (valid) {
-        updateRole(form.value).then(response => {
-          proxy.$modal.msgSuccess("修改成功");
-          open.value = false;
-          getList();
-        });
-    }
-  });
-}
-
-/** 取消按钮 */
-function cancel() {
-  open.value = false;
-  reset();
+  proxy.download('manage/teacher/export', {
+    ...queryParams.value
+  }, `teacher_${new Date().getTime()}.xlsx`)
 }
 
 getList();

@@ -1,15 +1,6 @@
 import request from '@/utils/request'
 
-
-// 新增学院列表
-export function addCollege(query) {
-    return request({
-        url: '/manage/college',
-        method: 'post',
-        data: query
-    })
-}
-// 查询学院列表
+// 查询学院信息列表
 export function listCollege(query) {
     return request({
         url: '/manage/college/list',
@@ -18,27 +9,36 @@ export function listCollege(query) {
     })
 }
 
-//查询学院详情信息
-export function listCollegeDetail(collegeId) {
+// 查询学院信息详细
+export function getCollege(collegeId) {
     return request({
-        url: '/manage/college/' +  collegeId,
-        method: 'get',
+        url: '/manage/college/' + collegeId,
+        method: 'get'
     })
 }
 
-// 修改学院列表
-export function updateCollege(query) {
+// 新增学院信息
+export function addCollege(data) {
+    return request({
+        url: '/manage/college',
+        method: 'post',
+        data: data
+    })
+}
+
+// 修改学院信息
+export function updateCollege(data) {
     return request({
         url: '/manage/college',
         method: 'put',
-        data: query
+        data: data
     })
 }
 
-// 删除学院列表
-export function delCollege(collegeIds) {
+// 删除学院信息
+export function delCollege(collegeId) {
     return request({
-        url: '/manage/college/' +  collegeIds,
-        method: 'delete',
+        url: '/manage/college/' + collegeId,
+        method: 'delete'
     })
 }
