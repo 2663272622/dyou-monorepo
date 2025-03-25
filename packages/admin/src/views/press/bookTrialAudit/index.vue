@@ -9,13 +9,10 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="书架名称" prop="applyStatus">
-        <el-input
-            v-model="queryParams.applyStatus"
-            placeholder="请输入书籍名称"
-            clearable
-            @keyup.enter="handleQuery"
-        />
+      <el-form-item label="申请状态" prop="applyStatus">
+        <el-select v-model="queryParams.applyStatus" placeholder="请选择" style="width: 200px;">
+       ·
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>

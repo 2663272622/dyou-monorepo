@@ -10,12 +10,14 @@
         />
       </el-form-item>
       <el-form-item label="学校类目" prop="schoolCategory">
-        <el-input
-            v-model="queryParams.schoolCategory"
-            placeholder="请输入学校类目（如：985/211/普通本科）"
-            clearable
-            @keyup.enter="handleQuery"
-        />
+        <el-select v-model="queryParams.schoolCategory" placeholder="请选择" style="width: 200px">
+          <el-option
+              v-for="dict in sch_teaching_level"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          ></el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="学院名称" prop="collegeName">
         <el-input
@@ -218,7 +220,7 @@
         <el-form-item label="工作证件" prop="credential">
           <image-preview :src="form.credential"></image-preview>
         </el-form-item>
-        <el-form-item label="认证状态" prop="authenticationStatus">
+        <el-form-item label="认证状态">
           <dict-tag :options="authentication_status" :value="form.authenticationStatus"/>
         </el-form-item>
         <el-form-item label="审核" prop="authenticationStatus">
@@ -249,7 +251,7 @@ import { listTeacher, getTeacher, delTeacher, addTeacher, updateTeacher } from "
 import ImagePreview from "@/components/ImagePreview/index.vue";
 
 const { proxy } = getCurrentInstance();
-const { authentication_status,tch_audit_operation } = proxy.useDict('authentication_status','tch_audit_operation');
+const { authentication_status , tch_audit_operation , sch_teaching_level } = proxy.useDict('authentication_status','tch_audit_operation','sch_teaching_level');
 
 const teacherList = ref([]);
 const open = ref(false);
@@ -296,6 +298,9 @@ const data = reactive({
     ],
     credential: [
       { required: true, message: "工作证件存储路径/URL不能为空", trigger: "blur" }
+    ],
+    authenticationStatus: [
+      { required: true, message: "请选择认证审核", trigger: "blur" }
     ],
   }
 });
@@ -418,7 +423,7 @@ function handleDelete(row) {
 function handleExport() {
   proxy.download('manage/teacher/export', {
     ...queryParams.value
-  }, `teacher_${new Date().getTime()}.xlsx`)
+  }, `老师认证申请列表_${new Date().getTime()}.xlsx`)
 }
 
 getList();
