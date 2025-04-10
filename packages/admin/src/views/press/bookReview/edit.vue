@@ -30,6 +30,8 @@ import dyUpload from "@/components/dy-upload/index.vue"
 import { pressAddApi,pressEditApi,pressInfoApi } from "@/api/press/press"
 import { ElNotification , ElMessageBox, ElMessage, ElLoading } from 'element-plus'
 import { isPhone } from '@/utils/validate'
+import { submitReviewApi } from "@/api/press/digitalTextbook"
+
 
 
 // 子组件代码如下 可同时修改父子组件的v-model值
@@ -67,10 +69,9 @@ const { book_audit_status } = proxy.useDict("book_audit_status");
 
 
 const rules = reactive({
-    name: [
-        { required: props.type == 'reject', message: '请输入出版社名称', trigger: 'blur' },
-        // { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
-    ], 
+    // description: [
+    //     { required: props.type == 'reject', message: '请输入处理意见', trigger: 'blur' },
+    // ], 
 })
  
 
@@ -79,13 +80,20 @@ const submitForm = () => {
     formRef.value.validate(async(bol,msg)=>{
         if(bol){
             let res = null;
-            formData.value.phone = formData.value.phone *1 
             switch(props.type){
                 case "resolve":// 同意
-                    res = await pressAddApi(formData.value)
+                    res = await submitReviewApi({
+                        ...formData.value,
+                        auditStatus:1,
+                        bookId:props.id
+                    })
                 break;
                 case "reject":// 驳回
-                    res = await pressEditApi(formData.value)
+                    res = await submitReviewApi({
+                        ...formData.value,
+                        auditStatus:5,
+                        bookId:props.id
+                    })
                 break;
             }
 

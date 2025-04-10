@@ -69,9 +69,11 @@ export const handleDestory = (id)=>{
 
 
 // 初始化编辑器
-export const handleInit = (cnf)=>{
+export const handleInit = (cnf,call)=>{
     let token = cnf.token;
     const uploadPath =  import.meta.env.VITE_APP_UPLOAD_URL + '/file/uploadCOS'
+    const STSPATH =  import.meta.env.VITE_APP_FILE_URL + '/file/oss/getStsToken'
+    
     window.tinymce.init({
         pagebreak_split_block:true,
         content_style:`img{max-width:100%;height:auto}p{margin-block-start: 0em; margin-block-end: 0em;}table{max-width:100%;height:auto}; `,
@@ -197,88 +199,140 @@ export const handleInit = (cnf)=>{
         },
         images_upload_handler: function(blobInfo, succFun, failFun) {
             
-          var formData;
-          formData = new FormData();
-          var file = blobInfo.blob(); //转化为易于理解的file对象
-          formData.append('file', file, file.name);
-          formData.append('type', '2');
-          // //uploadImg 就是引用的请求方法
-          // uploadImg(formData).then(res => {
-          //   // 返回值根据实际返回写，根据需求处理
-          //   succFun(res.data.url);
-          // }).catch(err => {
-          //   failFun('出现未知问题，刷新页面，或者联系程序员: ' + err);
-          // })
-        //   debugger
-          // const isLt1M = blobInfo.blob().size / 1024 / 1024 <= 1 
-          fetch(uploadPath, { 
-            method: 'POST',
-            body: formData,
-            headers: {
-              Authorization: "Bearer " + token
-            },
-          }).then(response => response.json()).then(res => {
-            var data = res.data
-            succFun(data.url)
-          }).catch(error => {
-            // failFun('出现未知问题，刷新页面，或者联系程序员: ' + error);
-            console.log("上传图片吧欧聪",error)
-          })
+            var formData;
+            formData = new FormData();
+            var file = blobInfo.blob(); //转化为易于理解的file对象
+            formData.append('file', file, file.name);
+            formData.append('type', '2');
+
+            // 使用 URLSearchParams 解析查询参数
+            let params = new URLSearchParams(window.location.search);
+
+            formData.append('bookId', params.get('name'));
+            formData.append('catalogId', params.get('catalogId'));
+            formData.append('pnumber', params.get('pnumber'));
+            
+            fetch(uploadPath, { 
+                method: 'POST',
+                body: formData,
+                headers: {
+                    Authorization: "Bearer " + token
+                },
+            }).then(response => response.json()).then(res => {
+                var data = res.data
+                succFun(data.url)
+            }).catch(error => {
+                console.log("上传2~~~~~~~~~")
+                // failFun('出现未知问题，刷新页面，或者联系程序员: ' + error);
+                console.log("上传图片吧欧聪",error)
+            })
         },
 
         file_picker_callback: function(cb, value, meta) {
             
             //当点击media图标上传时,判断meta.filetype == 'media'有必要，因为file_picker_callback是media(媒体)、image(图片)、file(文件)的共同入口
             if (meta.filetype == 'media' || meta.filetype == 'image') {
-              //创建一个隐藏的type=file的文件选择input
-              let input = document.createElement('input');
-              input.setAttribute('type', 'file');
-              input.onchange = function() {
-                let file = this.files[0]; //只选取第一个文件。如果要选取全部，后面注意做修改
-                let formData;
-                formData = new FormData();
-                formData.append('file', file);
-                // uploadImg(formData).then(res => {
-                //   //接口返回的文件保存地址
-                //   let mediaLocation = res.filenames;
-                //   //cb()回调函数，将mediaLocation显示在弹框输入框中
-                //   cb(mediaLocation, {
-                //     title: file.name
-                //   });
-                // }).catch(err => {
-                //   failFun('出现未知问题，刷新页面，或者联系程序员: ' + err);
-                // })
-                formData.append('type', '2');
-            // //uploadImg 就是引用的请求方法
-            // uploadImg(formData).then(res => {
-            //   // 返回值根据实际返回写，根据需求处理
-            //   succFun(res.data.url);
-            // }).catch(err => {
-            //   failFun('出现未知问题，刷新页面，或者联系程序员: ' + err);
-            // })
-            // const isLt1M = blobInfo.blob().size / 1024 / 1024 <= 1
-          // const isLt1M = blobInfo.blob().size / 1024 / 1024 <= 1 
-          fetch(uploadPath, {
-                  method: 'POST',
-                  body: formData,
-                  headers: {
-                    Authorization: "Bearer " + token
-                  },
-                }).then(response => response.json()).then(res => {
-                  let mediaLocation = res.data.url;
-                    //cb()回调函数，将mediaLocation显示在弹框输入框中
-                  cb(mediaLocation, {
-                        title: file.name
-                      });
-                }).catch(error => {
-                  console.error(error.message)
-                  // failFun('出现未知问题，刷新页面，或者联系程序员: ' + err);
-                  alert("上传失败 建议将图片压缩后上传")
-                  window.open(`https://www.iloveimg.com/zh-cn/compress-image/compress-jpg`)
-                })
-              }
-              //触发点击
-              input.click();
+                //创建一个隐藏的type=file的文件选择input
+                let input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.onchange = function() {
+                    let file = this.files[0];
+                    fetch(
+                        STSPATH,
+                        {
+                            method: 'GET',
+                            headers: {
+                                Authorization: "Bearer " + token
+                            },
+                        }
+                    ).then((res)=>res.json()).then(res=>{
+                        console.log('获取参数',file)
+                        const ossKey = res.data
+                        const cof= {
+                            authorizationV4: true,
+                            accessKeyId: ossKey.ossAccessKeyId,
+                            accessKeySecret: ossKey.accessKeySecret,
+                            stsToken: ossKey.securityToken,
+                            region: ossKey.regionId,
+                            bucket: ossKey.bucketName,
+                            policy: ossKey.policy,
+                            endpoint: `https://oss-cn-qingdao.aliyuncs.com/`, 
+                        }
+                        const client = new OSS(cof);
+                        let upath = '';
+                        try{
+                            let params = new URLSearchParams(window.location.search);
+                            let bookId = params.get('bookId');
+                            let catalogId = params.get('catalogId');
+                            upath = `book_${bookId}/catalog_${catalogId}/`
+                        }catch(e){}
+                        const name = ossKey.userPath + upath + file.name;
+                        const options = {
+                            // 获取分片上传进度、断点和返回值。
+                            progress: (p, cpt, res) => {
+                                console.log(p);
+                                // call(p,ossKey.host+name)
+                                if(call){
+                                    call(p)
+                                }
+                                if(p==1){
+                                    console.log(ossKey.host+name)
+                                    let mediaLocation = ossKey.host+name;
+                                     
+                                    call(p,{
+                                        storagePath: ossKey.host+name,
+                                        fileSize:(file.size/1024/1024).toFixed(2),
+                                        fileType:file.type,
+                                        fileName:file.name,
+                                    })
+                                        //cb()回调函数，将mediaLocation显示在弹框输入框中
+                                    cb(mediaLocation, {
+                                        title: name
+                                    });
+                                }
+                            },
+                            // 设置并发上传的分片数量。
+                            parallel: 4,
+                            // 设置分片大小。默认值为1 MB，最小值为100 KB，最大值为5 GB。最后一个分片的大小允许小于100 KB。
+                            partSize: 1024 * 1024,
+                            // headers,
+                            // 自定义元数据，通过HeadObject接口可以获取Object的元数据。
+                            meta: { year: 2020, people: "test" },
+                            mime: "text/plain",
+                        };
+
+                        // 分片上传。
+                        client.multipartUpload(name, file, {
+                            ...options, 
+                        });
+                    })
+                    // let file = this.files[0]; //只选取第一个文件。如果要选取全部，后面注意做修改
+                    // let formData;
+                    // formData = new FormData();
+                    // formData.append('file', file); 
+                    // formData.append('type', '2'); 
+                    // fetch(uploadPath, {
+                    //     method: 'POST',
+                    //     body: formData,
+                    //     headers: {
+                    //         Authorization: "Bearer " + token
+                    //     },
+                    // }).then(response => response.json()).then(res => {
+                    //     let mediaLocation = res.data.url;
+                    //         //cb()回调函数，将mediaLocation显示在弹框输入框中
+                    //     cb(mediaLocation, {
+                    //         title: file.name
+                    //     });
+                    // }).catch(error => {
+                    //     console.log("上传1~~~~~~~~~")
+                    //     console.error(error.message)
+                    //     // failFun('出现未知问题，刷新页面，或者联系程序员: ' + err);
+                    //     alert("上传失败 建议将图片压缩后上传")
+                    //     window.open(`https://www.iloveimg.com/zh-cn/compress-image/compress-jpg`)
+                    // })
+                }
+                //触发点击
+                input.click();
             }
         },
         convert_urls: false,

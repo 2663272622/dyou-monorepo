@@ -2,16 +2,16 @@
  <template>
    <div class="app-container">
       <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-         <el-form-item label="教材名称" prop="name">
+         <el-form-item label="教材名称" prop="bookName">
             <el-input
-               v-model="queryParams.name"
+               v-model="queryParams.bookName"
                placeholder="请输入教材名称"
                clearable
                style="width: 240px"
                @keyup.enter="handleQuery"
             />
          </el-form-item>  
-         <el-form-item label="购买时间" prop="name">
+         <!-- <el-form-item label="购买时间" prop="name">
             <el-date-picker
                v-model="queryParams.name"
                 type="daterange"
@@ -19,30 +19,20 @@
                 end-placeholder="截止时间"
                 :size="size"
             />
-         </el-form-item>
+         </el-form-item> -->
          <el-form-item>
             <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
          </el-form-item>
       </el-form>
       
-      <el-table v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
-         <el-table-column label="书籍封面" align="center" fixed="left" width="100"  >
-            <template #default="scope">
-                <el-image
-                    style="width: 50px; height: 50px"
-                    :src="scope.row.logo"
-                    :zoom-rate="1.2"
-                    :max-scale="7"
-                    :min-scale="0.2"
-                    fit="cover"
-                /> 
-            </template>
-         </el-table-column>
-         <el-table-column label="书籍名称" align="center" fixed="left" prop="name"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="书籍作者" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="购买时间" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="购买方式" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="购数码/订单编号" align="center" prop="phone" :show-overflow-tooltip="true"/>
+      <el-table v-loading="loading" :data="typeList" @selection-change="handleSelectionChange"> 
+         <el-table-column label="书籍名称" align="center" fixed="left" prop="bookName"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="购买人" align="center" prop="userName"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="购买数量" align="center" prop="count"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="创建时间" align="center" prop="createTime"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="支付金额" align="center" prop="paymentAmount"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="购买方式" align="center" prop="buyWay"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="购数码/订单编号" align="center" prop="orderNo" :show-overflow-tooltip="true"/>
         
         
          <!-- <el-table-column label="处理人" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
@@ -87,7 +77,7 @@
 import useDictStore from '@/store/modules/dict'
 import { listType, getType, delType, addType, updateType, refreshCache } from "@/api/system/dict/type";
 import editView from './edit'
-import { pressListApi,pressDelApi } from "@/api/press/press"
+import { orderListApi,orderDelApi } from "@/api/press/order"
 
 const { proxy } = getCurrentInstance();
 const { start_stop } = proxy.useDict("start_stop");
@@ -114,7 +104,7 @@ const queryParams = ref( {
 /** 查询列表 */
 function getList() {
   loading.value = true;
-  pressListApi(queryParams.value).then(response => {
+  orderListApi(queryParams.value).then(response => {
     typeList.value = response.rows;
     total.value = response.total;
     loading.value = false;

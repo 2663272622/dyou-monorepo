@@ -6,8 +6,7 @@ export function bookEditApi(data) {
         url: '/manage/book',
         method: 'put',
         data , 
-        headers:{
-        }
+        headers:{}
     })
 } 
 //  新增书
@@ -77,5 +76,118 @@ export function submitReviewApi(data) {
       data , 
       headers:{
       }
+    })
+} 
+
+
+
+
+export function bookshelfApi(params) {
+    return request({
+        url: '/manage/bookshelf/list',
+        method: 'get',
+        params , 
+        headers:{
+        }
+    })
+} 
+
+
+export function bookcatalogTreefApi(params) {
+    return request({
+        url: '/manage/catalog/getAllList',
+        method: 'get',
+        params , 
+    })
+} 
+
+
+export function catalogAddApi(data) {
+    return request({
+        url: '/manage/catalog',
+        method: 'post',
+        data , 
+    })
+} 
+export function catalogEditApi(params) {
+    return request({
+        url: '/manage/catalog/getAllList',
+        method: 'get',
+        params , 
+    })
+} 
+export function catalogDelApi(ids) {
+    return request({
+        url: '/manage/catalog/'+ids,
+        method: 'delete',
+    })
+}  
+
+export function catalogTApi(data) {
+    return request({
+        url: '/manage/catalog/editAllSort',
+        method: 'put',
+        data , 
+    })
+} 
+export function catalogInfoApi(params) {
+    return request({
+        url: '/manage/catalog/getBookCatalog',
+        method: 'get',
+        params
+    })
+} 
+
+
+
+// 获取章节书内容
+export function editorGetApi(params) {
+    return request({
+        url: '/manage/bookPage/list',
+        method: 'get', 
+        params
+    })
+} 
+// 新增呢个章节书内容
+export function editorAddtApi(data) {
+    return request({
+        url: '/manage/bookPage',
+        method: 'post', 
+        data
+    })
+} 
+ 
+// 修改章节书内容
+export function editorEdittApi(data) {
+    return request({
+        url: '/manage/bookPage',
+        method: 'put', 
+        data
+    })
+} 
+// 修改章节书内容
+export function editorDelApi(id) {
+    return request({
+        url: '/manage/bookPage/'+id,
+        method: 'delete', 
+    })
+} 
+ 
+
+
+export function bokResourceFileApi(data) {
+    return request({
+        url: '/manage//bokResource',
+        method: 'post',
+        data , 
+    })
+} 
+
+export function bokResourceFileLsApi(data) {
+    return request({
+        url: '/manage/bokResource/getBookResourceList',
+        method: 'post',
+        data , 
+        params:data , 
     })
 } 

@@ -21,4 +21,9 @@ onMounted(() => {
         overflow-y: auto;
         overflow-x: hidden;
     } 
+    
+    *{
+        margin:0;
+        padding:0;
+    }
 </style>

@@ -76,8 +76,8 @@
             </template>
          </el-table-column>
          <el-table-column label="书籍名称" align="center" fixed="left" prop="bookName"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="书籍作者" align="center" prop="author"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="出版社" align="center" prop="publishId"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="书籍作者" align="center" prop="authorName"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="出版社" align="center" prop="publishName"  width="200" :show-overflow-tooltip="true"/>
          
          <el-table-column label="字数(万)" align="center" prop="wordCount"  width="200" :show-overflow-tooltip="true"/>
          <el-table-column label="书籍定价" align="center" prop="listPrice"  width="200" :show-overflow-tooltip="true"/>
@@ -89,8 +89,8 @@
                <dict-tag :options="sch_teaching_level" :value="scope.row.educationLevel" />
             </template>
          </el-table-column>
-         <el-table-column label="学科分类" align="center" prop="categoryType"  width="200" :show-overflow-tooltip="true"/>
-         <el-table-column label="二级分类" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/>
+         <!-- <el-table-column label="学科分类" align="center" prop="categoryType"  width="200" :show-overflow-tooltip="true"/>
+         <el-table-column label="二级分类" align="center" prop="phone"  width="200" :show-overflow-tooltip="true"/> -->
          <el-table-column label="标签" align="center" prop="tags"  width="200" :show-overflow-tooltip="true"/>
          <el-table-column label="责任编辑电话" align="center" prop="editorPhone"  width="200" :show-overflow-tooltip="true"/>
          <el-table-column label="出版日期" align="center" prop="publisxhDate"  width="200" :show-overflow-tooltip="true"/>
@@ -118,18 +118,22 @@
   
          <el-table-column label="操作" align="center" width="300" class-name="small-padding fixed-width" fixed="right">
             <template #default="scope">
-                <template v-if="scope.row.auditStatus != 1 && scope.row.auditStatus != 2">
+                <template v-if="([0].includes(scope.row.auditStatus * 1) && [0].includes(scope.row.bookStatus * 1))  || scope.row.preStatus === 1 ">
                     <el-button link type="primary" icon="Edit" @click="handleUpdate(1,scope.row)" v-hasPermi="['manage:publisher:edit']">修改</el-button>
                     <el-button link type="primary" icon="Document" @click="handleUpdate(2,scope.row)" v-hasPermi="['manage:publisher:edit']">编辑图书</el-button>
-                    <el-button link type="primary" icon="Edit" @click="handleUpdate(4,scope.row)"  v-if="scope.row.bookStatus == 1" v-hasPermi="['manage:publisher:TurnOff']">下架</el-button>
-                    <el-button link type="primary" icon="Pointer" @click="handleUpdate(3,scope.row)" v-else v-hasPermi="['manage:publisher:Open']">上架</el-button> 
                 </template>
-                <template v-if="scope.row.auditStatus != 1 && scope.row.auditStatus != 2 && scope.row.bookStatus == 1">
+                
+                
+                <el-button v-if="scope.row.bookStatus == 1" link type="primary" icon="Edit" @click="handleUpdate(4,scope.row)" v-hasPermi="['manage:publisher:TurnOff']">下架</el-button>
+                <el-button v-if="scope.row.bookStatus*1 === 0 && [0].includes((scope.row.auditStatus||0) * 1)" link type="primary" icon="Pointer" @click="handleUpdate(3,scope.row)"   v-hasPermi="['manage:publisher:Open']">上架</el-button> 
+                <template v-if="[0,5].includes(scope.row.auditStatus * 1) && scope.row.bookStatus == 1">
                     <el-button link type="primary" icon="Edit" @click="handleUpdate(7,scope.row)" v-hasPermi="['manage:publisher:edit']">提交审核</el-button>
                 </template>
                 <template v-if="scope.row.auditStatus == 1">
                     <el-button link type="primary" icon="Edit" @click="handleUpdate(8,scope.row)" v-hasPermi="['manage:publisher:edit']">取消审核</el-button>
                 </template>
+                <el-button link type="primary" icon="Edit" @click="handleUpdate(9,scope.row)" v-hasPermi="['manage:publisher:edit']">题库</el-button>
+                <el-button v-if="scope.row.preStatus == 1 && [0].includes(scope.row.auditStatus * 1)" link type="primary" icon="Edit" @click="handleUpdate(9,scope.row)" v-hasPermi="['manage:publisher:edit']">版本回退</el-button>
             </template>
          </el-table-column>
       </el-table>
@@ -166,6 +170,8 @@ const { book_audit_status } = proxy.useDict("book_audit_status");
 const { sch_teaching_level } = proxy.useDict("sch_teaching_level");
 
 
+const route = useRoute();
+const router = useRouter();
 
 const typeList = ref([]);
 const open = ref(false);
@@ -221,7 +227,7 @@ console.log(row)
             open.value = true;
         break;
         case 2:// 
-
+            window.open(location.origin+'/editor?bookId='+currentId.value)
         break;
         case 3:// 上架
             proxy.$modal.confirm('是否确认提交 上架 申请？').then(()=> {
@@ -284,6 +290,14 @@ console.log(row)
                 getList();
                 proxy.$modal.msgSuccess("操作成功");
             }).catch(() => {});
+        break;
+        case 9:// 题库
+            router.push({
+                path:"/teaching/question",
+                query:{
+                    bookId:row.bookId
+                }
+            })
         break;
 
 
