@@ -21,7 +21,7 @@ export function getUser(userId) {
 // 新增用户
 export function addUser(data) {
   return request({
-    url: '/system/user',
+    url: '/system/user/addUser',
     method: 'post',
     data: data
   })
@@ -30,7 +30,7 @@ export function addUser(data) {
 // 修改用户
 export function updateUser(data) {
   return request({
-    url: '/system/user',
+    url: '/system/user/editUser',
     method: 'put',
     data: data
   })
@@ -132,5 +132,13 @@ export function deptTreeSelect() {
   return request({
     url: '/system/user/deptTree',
     method: 'get'
+  })
+}
+
+export function getUserInfo(query) {
+  return request({
+    url: '/system/user/getUserInfo/',
+    method: 'get',
+    params:query
   })
 }

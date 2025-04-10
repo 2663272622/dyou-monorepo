@@ -168,6 +168,16 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="授课老师" prop="teacherId">
+          <el-select v-model="queryParams.teacherId" filterable placeholder="请选择关联书籍" clearable style="width: 200px">
+            <el-option
+                v-for="item in bookList"
+                :key="item.bookId"
+                :label="item.bookName"
+                :value="item.bookId"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="作业占比" prop="homeworkWeight">
           <el-input-number v-model="form.homeworkWeight" placeholder="（0.00~100.00）" />
         </el-form-item>
@@ -201,8 +211,8 @@ const { proxy } = getCurrentInstance();
 const { course_status } = proxy.useDict('course_status');
 
 const router = useRouter();
-const courseList = ref([]);
-const bookList = ref([]);
+// const courseList = ref([]);
+// const bookList = ref([]);
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -222,6 +232,7 @@ const data = reactive({
     startTime: null,
     endTime: null,
     bookId: null,
+    teacherId:null
   },
   rules: {
     courseName: [
@@ -235,6 +246,9 @@ const data = reactive({
     ],
     bookId: [
       { required: true, message: "关联书籍不能为空", trigger: "blur" }
+    ],
+    teacherId: [
+      { required: true, message: "授课老师不能为空", trigger: "blur" }
     ],
     homeworkWeight: [
       { required: true, message: "作业占比不能为空", trigger: "blur" }
@@ -250,14 +264,81 @@ const data = reactive({
 
 const { queryParams, form, rules } = toRefs(data);
 
+//模拟假数据
+const mockCourseList = [
+  {
+    courseId: 1,
+    courseName: "数学基础",
+    courseIntro: "基础数学课程",
+    startTime: "2023-09-01",
+    endTime: "2023-12-01",
+    status: 1,
+    bookId: 101,
+    homeworkWeight: 30,
+    examWeight: 40,
+    readingWeight: 30,
+    remark: "无",
+  },
+  {
+    courseId: 2,
+    courseName: "英语语法",
+    courseIntro: "深入英语语法学习",
+    startTime: "2023-09-10",
+    endTime: "2023-12-10",
+    status: 1,
+    bookId: 102,
+    homeworkWeight: 20,
+    examWeight: 50,
+    readingWeight: 30,
+    remark: "注意作业",
+  },
+  {
+    courseId: 3,
+    courseName: "科学探究",
+    courseIntro: "科学实验与探究",
+    startTime: "2023-09-15",
+    endTime: "2023-12-15",
+    status: 0,
+    bookId: 103,
+    homeworkWeight: 40,
+    examWeight: 30,
+    readingWeight: 30,
+    remark: "实验重要",
+  },
+  {
+    courseId: 4,
+    courseName: "历史概论",
+    courseIntro: "学习历史背景与事件",
+    startTime: "2023-09-20",
+    endTime: "2023-12-20",
+    status: 1,
+    bookId: 104,
+    homeworkWeight: 25,
+    examWeight: 35,
+    readingWeight: 40,
+    remark: "注意复习",
+  }
+];
+
+const mockBookList = [
+  { bookId: 101, bookName: "数学书籍" },
+  { bookId: 102, bookName: "英语书籍" },
+  { bookId: 103, bookName: "科学书籍" },
+  { bookId: 104, bookName: "历史书籍" },
+];
+
+// 在你的 setup 函数中替换从 API 获取数据的部分
+const courseList = ref(mockCourseList);
+const bookList = ref(mockBookList);
+
 /** 查询课程列表 */
 function getList() {
   loading.value = true;
-  listCourse(queryParams.value).then(response => {
-    courseList.value = response.rows;
-    total.value = response.total;
+  // listCourse(queryParams.value).then(response => {
+  //   courseList.value = response.rows;
+  //   total.value = response.total;
     loading.value = false;
-  });
+  // });
 }
 
  function getBookList(){
@@ -331,13 +412,12 @@ function handleUpdate(row) {
 }
 
 function handleClass(row){
-  //跳转
-  router.push("/teaching/course-class/index/" + row.courseId);
+  router.push("/teaching/course-to/class/" + row.courseId);
 }
 
 // 跳转至创建测评页面
 function goEvaluate(type){
-  router.push('/teaching/course-evaluate/index/'+type)
+  router.push('/teaching/course-to/evaluate/'+type)
   // router.push('/teaching/course/evaluate/='+type)
 }
 
@@ -377,7 +457,7 @@ function handleDelete(row) {
 function handleExport() {
   proxy.download('manage/course/export', {
     ...queryParams.value
-  }, `course_${new Date().getTime()}.xlsx`)
+  }, `课程列表_${new Date().getTime()}.xlsx`)
 }
 
 getList();

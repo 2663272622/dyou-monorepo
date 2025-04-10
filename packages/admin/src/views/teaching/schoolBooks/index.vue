@@ -19,15 +19,15 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="书号" prop="ISBN">
-        <el-input
-            v-model="queryParams.ISBN"
-            placeholder="请输入书号"
-            clearable
-            style="width: 240px"
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
+<!--      <el-form-item label="书号" prop="ISBN">-->
+<!--        <el-input-->
+<!--            v-model="queryParams.ISBN"-->
+<!--            placeholder="请输入书号"-->
+<!--            clearable-->
+<!--            style="width: 240px"-->
+<!--            @keyup.enter="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -46,7 +46,7 @@
         </template>
       </el-table-column>
       <el-table-column label="书籍名称" prop="bookName" :show-overflow-tooltip="true"  />
-      <el-table-column label="ISBN书号" prop="ISBN" :show-overflow-tooltip="true"  />
+<!--      <el-table-column label="ISBN书号" prop="ISBN" :show-overflow-tooltip="true"  />-->
     </el-table>
 
     <pagination
@@ -74,7 +74,7 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     author: undefined,
-    ISBN:undefined,
+    // ISBN:undefined,
   },
 });
 

@@ -150,63 +150,87 @@ export const dynamicRoutes = [
       }
     ]
   },
+  //   老师使用较次啊
+  // {
+  //   path: '/teaching/teacher-textbook',
+  //   component: Layout,
+  //   hidden: true,
+  //   permissions: ['manage:teacher:list'],
+  //   children: [
+  //     {
+  //       path: 'index/:teacherId(\\d+)',
+  //       component: () => import('@/views/teaching/teacher/textbook'),
+  //       name: 'Textbook',
+  //       meta: { title: '教材数据', activeMenu: '/teaching/teacher' }
+  //     }
+  //   ]
+  // },
+
   {
-    path: '/teaching/teacher-textbook',
-    component: Layout,
-    hidden: true,
-    permissions: ['manage:teacher:list'],
-    children: [
-      {
-        path: 'index/:teacherId(\\d+)',
-        component: () => import('@/views/teaching/teacher/textbook'),
-        name: 'Textbook',
-        meta: { title: '教材数据', activeMenu: '/teaching/teacher' }
-      }
-    ]
-  },
-  {
-    path: '/teaching/course-evaluate',
+    path: '/teaching/course-to',
     component: Layout,
     hidden: true,
     permissions: ['manage:course:list'],
     children: [
       {
-        // path: 'index',
-        path: 'index/:courseId(\\d+)',
+        path: 'evaluate/:type(\\d+)',
         component: () => import('@/views/teaching/course/evaluate/index'),
         name: 'Evaluate',
         meta: { title: '添加测评', activeMenu: '/teaching/course' }
-      }
-    ]
-  },
-  {
-    path: '/teaching/course-class',
-    component: Layout,
-    hidden: true,
-    permissions: ['manage:course:list'],
-    children: [
+      },
       {
-        path: 'index/:courseId(\\d+)',
+        path: 'class/:courseId(\\d+)',
         component: () => import('@/views/teaching/course/class/index'),
         name: 'Class',
         meta: { title: '班级管理', activeMenu: '/teaching/course'},
+        children: [
+          {
+            path: 'student/:classId(\\d+)',
+            component: () => import('@/views/teaching/course/class/student/index'),
+            name: 'Student',
+            meta: { title: '学生管理', activeMenu: '/teaching/course'},
+            children: [
+              {
+                path: 'index/:studentId(\\d+)',
+                component: () => import('@/views/teaching/course/class/markPapers/index'),
+                name: 'Students',
+                meta: { title: '测评管理', activeMenu: '/teaching/course'},
+              }
+            ]
+          },
+        ]
       },
     ]
   },
-  {
-    path: '/teaching/course-students',
-    component: Layout,
-    hidden: true,
-    permissions: ['system:course:list'],
-    children: [
-      {
-        path: 'index/:classId(\\d+)',
-        component: () => import('@/views/teaching/course/class/student'),
-        name: 'Class',
-        meta: { title: '学生管理', activeMenu: '/teaching/course'},
-      }
-    ]
-  },
+  // 学生页面
+  // {
+  //   path: '/teaching/class-students',
+  //   component: Layout,
+  //   hidden: true,
+  //   permissions: ['manage:teacher:list'],
+  //   children: [
+  //     {
+  //       path: 'index/:classId(\\d+)',
+  //       component: () => import('@/views/teaching/course/class/student/student.vue'),
+  //       name: 'Students',
+  //       meta: { title: '学生管理', activeMenu: '/teaching/course'},
+  //     }
+  //   ]
+  // },
+  // {
+  //   path: '/teaching/students-markPapers',
+  //   component: Layout,
+  //   hidden: true,
+  //   permissions: ['manage:student:list'],
+  //   children: [
+  //     {
+  //       path: 'index/:studentId(\\d+)',
+  //       component: () => import('@/views/teaching/course/class/markPapers/index'),
+  //       name: 'Students',
+  //       meta: { title: '学生管理', activeMenu: '/teaching/course'},
+  //     }
+  //   ]
+  // },
   {
     path: '/tool/gen-edit',
     component: Layout,

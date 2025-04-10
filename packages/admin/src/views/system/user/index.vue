@@ -69,7 +69,7 @@
                 </el-button>
               </el-col>
               <el-col :span="1.5">
-                <el-button color="#626aef" plain icon="Link" @click="handleExport">审核</el-button>
+                <el-button color="#626aef" plain icon="Link" @click="handleExport" v-if="userInfo.dept.deptType == 2">分享加入链接</el-button>
               </el-col>
               <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
             </el-row>
@@ -100,11 +100,11 @@
               </el-table-column>
               <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
                 <template #default="scope">
-                  <el-tooltip content="修改" placement="top" v-if="scope.row.userId !== userInfo.id">
+                  <el-tooltip content="修改" placement="top" v-if="scope.row.userId !== userInfo.id && scope.row.userId !== 1">
                     <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
                                v-hasPermi="['system:user:edit']"></el-button>
                   </el-tooltip>
-                  <el-tooltip content="删除" placement="top" v-if="scope.row.userId !== userInfo.id">
+                  <el-tooltip content="删除" placement="top" v-if="scope.row.userId !== userInfo.id && scope.row.userId !== 1">
                     <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
                                v-hasPermi="['system:user:remove']"></el-button>
                   </el-tooltip>
@@ -130,9 +130,15 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="归属部门" prop="deptId">
-              <el-tree-select v-model="form.deptId" :data="enabledDeptOptions"
-                              :props="{ value: 'id', label: 'label', children: 'children' }" value-key="id"
-                              placeholder="请选择归属部门" check-strictly/>
+<!--              <el-tree-select v-model="form.deptId" :data="enabledDeptOptions"-->
+<!--                              :props="{ value: 'id', label: 'label', children: 'children' }" value-key="id"-->
+<!--                              placeholder="请选择归属部门" check-strictly/>-->
+              <el-cascader
+                  v-model="form.deptId"
+                  :options="enabledDeptOptions"
+                  :props="{expandTrigger:'hover',value:'id'}"
+                  @change="handleChange"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -144,7 +150,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item v-if="form.userId == undefined" label="用户名" prop="userName">
-              <el-input  v-model="form.userName" placeholder="请输入用户名" maxlength="11"/>
+              <el-input  v-model="form.userName" placeholder="请输入手机号" maxlength="11"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -227,7 +233,7 @@ import {
   getUser,
   updateUser,
   addUser,
-  deptTreeSelect
+  deptTreeSelect, getUserInfo
 } from "@/api/system/user";
 import {Splitpanes, Pane} from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
@@ -281,7 +287,9 @@ const columns = ref([
 ]);
 
 const data = reactive({
-  form: {},
+  form: {
+    platType:0
+  },
   queryParams: {
     pageNum: 1,
     pageSize: 10,
@@ -297,6 +305,7 @@ const data = reactive({
       message: "用户名称长度必须介于 2 和 20 之间",
       trigger: "blur"
     }],
+    // userName:[{ required: true, message: "手机号码不能为空", trigger: "blur" }, { pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: "请输入正确的手机号码", trigger: "blur" }],
     password: [{required: true, message: "用户密码不能为空", trigger: "blur"}, {
       min: 5,
       max: 20,
@@ -329,11 +338,41 @@ function getList() {
   });
 };
 
+//平台类型解析
+const getDeptLabel = (deptType) => {
+  switch (deptType) {
+    case "0": return "平台";
+    case "1": return "出版社";
+    case "2": return "学校";
+    case "3": return "官网";
+    default: return "未知";
+  }
+};
+
 /** 查询部门下拉树结构 */
 function getDeptTree() {
   deptTreeSelect().then(response => {
     deptOptions.value = response.data;
-    enabledDeptOptions.value = filterDisabledDept(JSON.parse(JSON.stringify(response.data)));
+    // enabledDeptOptions.value = filterDisabledDept(JSON.parse(JSON.stringify(response.data)));
+    // console.log(enabledDeptOptions.value)
+
+
+    enabledDeptOptions.value = response.data
+        .filter(dept => dept.deptType != 3) // 过滤掉 deptType 为 3 的部门
+        .map(department => {
+          return {
+            id: department.deptType,
+            label: getDeptLabel(department.deptType), // 只显示 deptType 的标签
+            children: department.deptTree.flatMap(tree =>
+                tree.map(item => ({
+                  id: item.id,
+                  label: item.label, // 直接显示部门名称
+                  disabled: item.disabled,
+                  children: item.children ? filterDisabledDept(item.children) : []
+                }))
+            )
+          };
+        });
   });
 };
 
@@ -503,7 +542,7 @@ function cancel() {
 /** 新增按钮操作 */
 function handleAdd() {
   reset();
-  getUser().then(response => {
+  getUserInfo().then(response => {
     roleOptions.value = response.roles;
     open.value = true;
     title.value = "添加用户";
@@ -515,20 +554,32 @@ function handleAdd() {
 function handleUpdate(row) {
   reset();
   const userId = row.userId || ids.value;
-  getUser(userId).then(response => {
+  getUserInfo({userId:userId}).then(response => {
     form.value = response.data;
     roleOptions.value = response.roles;
-    form.value.roleIds = response.roleIds;
+    // form.value.roleIds = response.roleIds;
     open.value = true;
     title.value = "修改用户";
     form.password = "";
   });
 };
 
+const handleChange = (value) => {
+  getUserInfo({platType:value[0]}).then(response => {
+    roleOptions.value = response.roles;
+    form.value.platType = value[0]; //平台类型
+    // form.value.roleIds = response.roleIds;
+  });
+}
+
+
 /** 提交按钮 */
 function submitForm() {
   proxy.$refs["userRef"].validate(valid => {
     if (valid) {
+      // 获取最后一个部门的id
+      const deptId = form.value.deptId[form.value.deptId.length-1]
+      form.value.deptId = deptId
       if (form.value.userId != undefined) {
         updateUser(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");

@@ -10,25 +10,15 @@
         />
       </el-form-item>
       <el-form-item label="关联课程" prop="courseId">
-        <el-input
-            v-model="queryParams.courseId"
-            placeholder="请输入关联课程"
-            clearable
-            @keyup.enter="handleQuery"
-        />
+        <el-select v-model="queryParams.courseId" placeholder="关联课程" clearable style="width: 240px">
+          <el-option v-for="item in courseList" :key="item.courseId" :label="item.label"
+                     :value="item.courseId"/>
+        </el-select>
       </el-form-item>
       <el-form-item label="班级码" prop="classCode">
         <el-input
             v-model="queryParams.classCode"
             placeholder="请输入唯一班级码"
-            clearable
-            @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="老师" prop="userId">
-        <el-input
-            v-model="queryParams.userId"
-            placeholder="请输入老师"
             clearable
             @keyup.enter="handleQuery"
         />
@@ -47,7 +37,8 @@
             icon="Plus"
             @click="handleAdd"
             v-hasPermi="['manage:class:add']"
-        >新增</el-button>
+        >新增
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -57,7 +48,8 @@
             :disabled="single"
             @click="handleUpdate"
             v-hasPermi="['manage:class:edit']"
-        >修改</el-button>
+        >修改
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -67,7 +59,8 @@
             :disabled="multiple"
             @click="handleDelete"
             v-hasPermi="['manage:class:remove']"
-        >删除</el-button>
+        >删除
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -76,24 +69,39 @@
             icon="Download"
             @click="handleExport"
             v-hasPermi="['manage:class:export']"
-        >导出</el-button>
+        >导出
+        </el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="classList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="班级编码" align="center" prop="classId" />
-      <el-table-column label="班级名称" align="center" prop="className" />
-      <el-table-column label="关联课程" align="center" prop="courseId" />
-      <el-table-column label="班级码" align="center" prop="classCode" />
-      <el-table-column label="老师" align="center" prop="userId" />
-      <el-table-column label="备注信息" align="center" prop="remark" />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="班级编码" align="center" prop="classId"/>
+      <el-table-column label="班级名称" align="center" prop="className"/>
+      <el-table-column label="关联课程" align="center" prop="courseName"/>
+      <el-table-column label="班级码" :show-overflow-tooltip="true">
+        <template  #default="scope">
+          <el-link :underline="false" type="primary" v-copyText="scope.row.classCode" arg="callback" @click="copyCallback">
+            {{ scope.row.classCode }}
+          </el-link>
+        </template>
+      </el-table-column>
+      <el-table-column label="备注信息" align="center" prop="remark"/>
+      <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['manage:class:list']">学生管理</el-button>
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['manage:class:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['manage:class:remove']">删除</el-button>
+<!--          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"-->
+<!--                     v-hasPermi="['manage:class:list']">学生管理-->
+<!--          </el-button>-->
+<!--          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"-->
+<!--                     v-hasPermi="['manage:class:edit']">修改-->
+<!--          </el-button>-->
+<!--          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"-->
+<!--                     v-hasPermi="['manage:class:remove']">删除-->
+<!--          </el-button> -->
+          <el-button link type="primary" icon="Edit" @click="handleStudent(scope.row)">学生管理</el-button>
+          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
+          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -110,7 +118,7 @@
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="classRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="班级名称" prop="className">
-          <el-input v-model="form.className" placeholder="请输入班级名称" />
+          <el-input v-model="form.className" placeholder="请输入班级名称"/>
         </el-form-item>
         <el-form-item label="关联课程" prop="courseId">
           <el-select v-model="form.courseId" filterable placeholder="课程选择" clearable>
@@ -123,13 +131,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="唯一班级码" prop="classCode">
-          <el-input v-model="form.classCode" placeholder="请输入唯一班级码" />
-        </el-form-item>
-        <el-form-item label="老师" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入老师ID" />
+          <el-link :underline="false" type="primary" v-copyText="form.classCode" arg="callback" @click="copyCallback">{{ form.classCode }}</el-link>
         </el-form-item>
         <el-form-item label="备注信息" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入备注信息" />
+          <el-input v-model="form.remark" placeholder="请输入备注信息"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -143,11 +148,15 @@
 </template>
 
 <script setup name="Class">
-import { listClass, getClass, delClass, addClass, updateClass } from "@/api/teaching/class";
+import {listClass, getClass, delClass, addClass, updateClass} from "@/api/teaching/class";
+import {useRouter,useRoute} from 'vue-router'
 
-const { proxy } = getCurrentInstance();
+const {proxy} = getCurrentInstance();
+const router = useRouter();
+const route = useRoute();
 
-const classList = ref([]);
+
+// const classList = ref([]);
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -163,36 +172,92 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     className: null,
-    courseId: null,
+    courseId: route.params.courseId,
     classCode: null,
-    userId: null,
   },
   rules: {
     className: [
-      { required: true, message: "班级名称不能为空", trigger: "blur" }
+      {required: true, message: "班级名称不能为空", trigger: "blur"}
     ],
     courseId: [
-      { required: true, message: "关联课程ID不能为空", trigger: "blur" }
+      {required: true, message: "关联课程不能为空", trigger: "blur"}
     ],
     classCode: [
-      { required: true, message: "唯一班级码不能为空", trigger: "blur" }
-    ],
-    userId: [
-      { required: true, message: "老师不能为空", trigger: "blur" }
-    ],
+      {required: true, message: "唯一班级码不能为空", trigger: "blur"}
+    ]
   }
 });
 
-const { queryParams, form, rules } = toRefs(data);
+const {queryParams, form, rules} = toRefs(data);
+const mockClassList = [
+  {
+    classId: 1,
+    courseId: 1,
+    className: "高一（1）班",
+    courseName: "数学基础",
+    classCode: "GY1B",
+    remark: "优秀班级",
+  },
+  {
+    classId: 2,
+    courseId: 2,
+    className: "高一（2）班",
+    courseName: "英语语法",
+    classCode: "GY2B",
+    remark: "活跃班级",
+  },
+  {
+    classId: 3,
+    courseId: 3,
+    className: "高二（1）班",
+    courseName: "科学探究",
+    classCode: "GZ1B",
+    remark: "实验班级",
+  },
+  {
+    classId: 4,
+    courseId: 4,
+    className: "高二（2）班",
+    courseName: "历史概论",
+    classCode: "GZ2B",
+    remark: "文化班级",
+  },
+  {
+    classId: 5,
+    className: "高三（1）班",
+    courseName: "文科综合",
+    classCode: "G3B",
+    remark: "冲刺班级",
+  },
+  {
+    classId: 6,
+    className: "高三（2）班",
+    courseName: "理科综合",
+    classCode: "G3B2",
+    remark: "顶尖班级",
+  },
+];
+
+// 课程选择假数据
+const mockCourseList = [
+  { courseId: 1, label: "数学基础" },
+  { courseId: 2, label: "英语语法" },
+  { courseId: 3, label: "科学探究" },
+  { courseId: 4, label: "历史概论" },
+];
+
+// 在你的 setup 函数中替换从 API 获取数据的部分
+const classList = ref(mockClassList);
+const courseList = ref(mockCourseList);
 
 /** 查询课程班级列表 */
 function getList() {
   loading.value = true;
-  listClass(queryParams.value).then(response => {
-    classList.value = response.rows;
-    total.value = response.total;
+  // listClass(queryParams.value).then(response => {
+  //   classList.value = response.rows;
+  //   total.value = response.total;
     loading.value = false;
-  });
+  // });
 }
 
 // 取消按钮
@@ -208,7 +273,6 @@ function reset() {
     className: null,
     courseId: null,
     classCode: null,
-    userId: null,
     remark: null,
     createBy: null,
     createTime: null,
@@ -228,6 +292,10 @@ function handleQuery() {
 function resetQuery() {
   proxy.resetForm("queryRef");
   handleQuery();
+}
+
+function copyCallback() {
+  proxy.$modal.msgSuccess("复制成功");
 }
 
 // 多选框选中数据
@@ -254,6 +322,13 @@ function handleUpdate(row) {
     title.value = "修改课程班级";
   });
 }
+/** 修改按钮操作 */
+function handleStudent(row) {
+  reset();
+  console.log(route)
+  // router.push("/teaching/course-to/class/" + row.courseId+"/student/" + row.classId)
+  router.push("/teaching/course-to/class/"+row.courseId+"/student/"+row.classId)
+}
 
 /** 提交按钮 */
 function submitForm() {
@@ -279,12 +354,13 @@ function submitForm() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _classIds = row.classId || ids.value;
-  proxy.$modal.confirm('是否确认删除课程班级编号为"' + _classIds + '"的数据项？').then(function() {
+  proxy.$modal.confirm('是否确认删除课程班级编号为"' + _classIds + '"的数据项？').then(function () {
     return delClass(_classIds);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+  }).catch(() => {
+  });
 }
 
 /** 导出按钮操作 */
