@@ -28,6 +28,30 @@ export function bookbookApi(id) {
         }
     })
 } 
+//  设置精选
+export function bookSetJxApi(data) {
+    return request({
+        url: '/manage/book/isSelected',
+        method: 'post',
+        data
+    })
+} 
+//  设置精选
+export function bookOpenPreEditApi(data) {
+    return request({
+        url: '/manage/book/openPreEdit',
+        method: 'post',
+        data
+    })
+} 
+//  版本回退
+export function returnOnlineVersionApi(data) {
+    return request({
+        url: '/manage/book/returnOnlineVersion',
+        method: 'post',
+        data
+    })
+}  
 // 书列表
 export function bookListApi(params) {
     return request({

@@ -104,6 +104,17 @@
          <el-table-column label="修改人" align="center" prop="updateBy"  width="200" :show-overflow-tooltip="true"/>
          <el-table-column label="修改时间" align="center" prop="updateTime"  width="200" :show-overflow-tooltip="true"/>
          
+         <el-table-column label="是否精选" align="center" prop="isSelected" fixed="right">
+            <template #default="scope">
+               <el-switch v-model="scope.row.isSelected"  active-value="1" inactive-value="0" @change="()=>handleChangeJx(scope.row)"/>
+            </template>
+         </el-table-column>
+         <el-table-column label="开启预编辑" align="center" prop="preStatus" fixed="right">
+            <template #default="scope">
+                <p v-if="scope.row.bookStatus != 1"></p>
+               <el-switch v-else v-model="scope.row.preStatus"  active-value="1" inactive-value="0" @change="()=>handleChangeYBJ(scope.row)"/>
+            </template>
+         </el-table-column>
          <el-table-column label="教材状态" align="center" prop="bookStatus" fixed="right">
             <template #default="scope">
                <dict-tag :options="book_issue_status" :value="scope.row.bookStatus" />
@@ -118,14 +129,15 @@
   
          <el-table-column label="操作" align="center" width="300" class-name="small-padding fixed-width" fixed="right">
             <template #default="scope">
-                <template v-if="([0].includes(scope.row.auditStatus * 1) && [0].includes(scope.row.bookStatus * 1))  || scope.row.preStatus === 1 ">
+                <template v-if="([0].includes(scope.row.auditStatus * 1) && [0,2].includes(scope.row.bookStatus * 1))  || scope.row.preStatus === 1 ">
                     <el-button link type="primary" icon="Edit" @click="handleUpdate(1,scope.row)" v-hasPermi="['manage:publisher:edit']">修改</el-button>
                     <el-button link type="primary" icon="Document" @click="handleUpdate(2,scope.row)" v-hasPermi="['manage:publisher:edit']">编辑图书</el-button>
                 </template>
+                <el-button v-if="scope.row.preStatus == 1 && [0,1].includes(scope.row.auditStatus * 1)" link type="primary" icon="Document" @click="handleUpdate(11,scope.row)" v-hasPermi="['manage:publisher:edit']">版本回退</el-button>
                 
                 
                 <el-button v-if="scope.row.bookStatus == 1" link type="primary" icon="Edit" @click="handleUpdate(4,scope.row)" v-hasPermi="['manage:publisher:TurnOff']">下架</el-button>
-                <el-button v-if="scope.row.bookStatus*1 === 0 && [0].includes((scope.row.auditStatus||0) * 1)" link type="primary" icon="Pointer" @click="handleUpdate(3,scope.row)"   v-hasPermi="['manage:publisher:Open']">上架</el-button> 
+                <el-button v-if="[0,2].includes(scope.row.bookStatus * 1) && [0].includes((scope.row.auditStatus||0) * 1)" link type="primary" icon="Pointer" @click="handleUpdate(3,scope.row)"   v-hasPermi="['manage:publisher:Open']">上架</el-button> 
                 <template v-if="[0,5].includes(scope.row.auditStatus * 1) && scope.row.bookStatus == 1">
                     <el-button link type="primary" icon="Edit" @click="handleUpdate(7,scope.row)" v-hasPermi="['manage:publisher:edit']">提交审核</el-button>
                 </template>
@@ -162,7 +174,7 @@
 import useDictStore from '@/store/modules/dict'
 import { listType, getType, delType, addType, updateType, refreshCache } from "@/api/system/dict/type";
 import editView from './edit'
-import { bookListApi,bookDelApi,upOrDownAddApi,submitReviewApi } from "@/api/press/digitalTextbook"
+import { returnOnlineVersionApi,bookListApi,bookDelApi,upOrDownAddApi,submitReviewApi,bookSetJxApi,bookOpenPreEditApi } from "@/api/press/digitalTextbook"
 
 const { proxy } = getCurrentInstance();
 const { book_issue_status } = proxy.useDict("book_issue_status");
@@ -204,6 +216,30 @@ function handleQuery() {
   queryParams.value.pageNum = 1;
   getList();
 }
+
+const handleChangeJx = (item)=>{
+    let params = {
+        bookId:item.bookId,
+        isSelected:item.isSelected
+    }
+    bookSetJxApi(params).then(res=>{
+        console.log(res)
+        getList();
+    })
+    
+}
+const handleChangeYBJ = (item)=>{
+    let params = {
+        bookId:item.bookId,
+        preStatus:item.preStatus
+    }
+    bookOpenPreEditApi(params).then(res=>{
+        console.log(res)
+        getList();
+    })
+    
+}
+
 
 /** 多选框选中数据 */
 function handleSelectionChange(selection) { }
@@ -298,6 +334,21 @@ console.log(row)
                     bookId:row.bookId
                 }
             })
+        break;
+        case 11:// 版本回退
+            
+            proxy.$modal.confirm('是否确认回退？').then(()=> { 
+                return returnOnlineVersionApi({
+                    "bookId": currentId.value,
+                    // "bookStatus": "",
+                    // "auditStatus": "",
+                    // "auditRemark": "",
+                    // "subStatus": "2" //1提交审核 2取消审核
+                });
+            }).then(() => {
+                getList();
+                proxy.$modal.msgSuccess("操作成功");
+            }).catch(() => {});
         break;
 
 
