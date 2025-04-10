@@ -226,7 +226,7 @@
         <el-form-item label="审核" prop="authenticationStatus">
           <el-radio-group v-model="form.authenticationStatus">
             <el-radio
-                v-for="dict in tch_audit_operation"
+                v-for="dict in audit_operation"
                 :key="dict.value"
                 :label="dict.value"
             >{{dict.label}}</el-radio>
@@ -251,7 +251,7 @@ import { listTeacher, getTeacher, delTeacher, addTeacher, updateTeacher } from "
 import ImagePreview from "@/components/ImagePreview/index.vue";
 
 const { proxy } = getCurrentInstance();
-const { authentication_status , tch_audit_operation , sch_teaching_level } = proxy.useDict('authentication_status','tch_audit_operation','sch_teaching_level');
+const { authentication_status , audit_operation , sch_teaching_level } = proxy.useDict('authentication_status','audit_operation','sch_teaching_level');
 
 const teacherList = ref([]);
 const open = ref(false);

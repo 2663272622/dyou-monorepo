@@ -1,6 +1,7 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+    <!-- 搜索框和按钮 -->
+    <el-form :model="queryParams" ref="queryRef" :inline="true" label-width="68px">
       <el-form-item label="学院名称" prop="collegeName">
         <el-input
             v-model="queryParams.collegeName"
@@ -21,29 +22,9 @@
             type="primary"
             plain
             icon="Plus"
-            @click="handleAdd"
+            @click="handleAdd()"
             v-hasPermi="['manage:college:add']"
-        >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-            type="success"
-            plain
-            icon="Edit"
-            :disabled="single"
-            @click="handleUpdate"
-            v-hasPermi="['manage:college:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-            type="danger"
-            plain
-            icon="Delete"
-            :disabled="multiple"
-            @click="handleDelete"
-            v-hasPermi="['manage:college:remove']"
-        >删除</el-button>
+        >新增一级学院</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -54,29 +35,48 @@
             v-hasPermi="['manage:college:export']"
         >导出</el-button>
       </el-col>
+      <el-col :span="1.5">
+        <el-button
+            type="info"
+            plain
+            icon="Sort"
+            @click="toggleExpandAll"
+        >展开/折叠</el-button>
+      </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="collegeList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
+    <el-table
+        v-if="refreshTable"
+        v-loading="loading"
+        :data="collegeList"
+        row-key="deptId"
+        :default-expand-all="isExpandAll"
+        :tree-props="{ children: 'collegeSubList', hasChildren: 'hasChildren' }"
+    >
+      <el-table-column label="学院名称" align="center" prop="collegeName"/>
       <el-table-column label="学院LOGO" align="center">
         <template #default="scope">
           <ImagePreview :src="scope.row.collegeLogo"></ImagePreview>
         </template>
       </el-table-column>
-      <el-table-column label="学院名称" align="center" prop="collegeName" />
-      <el-table-column label="备注信息" align="center" prop="remark" />
+      <el-table-column label="备注信息" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Plus" @click="handleAdd(scope.row)" v-hasPermi="['manage:college:add']">新增</el-button>
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['manage:college:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['manage:college:remove']">删除</el-button>
+          <el-button link type="primary" icon="Plus" v-if="scope.row.type == 1" @click="() => handleAdd(scope.row)" v-hasPermi="['manage:college:add']">
+            新增二级学院
+          </el-button>
+          <el-button link type="primary" icon="link" @click="() => handleInvite(scope.row)" v-hasPermi="['manage:college:invite']">
+            老师邀请
+          </el-button>
+          <el-button link type="primary" icon="Edit" @click="() => handleUpdate(scope.row)" v-hasPermi="['manage:college:edit']">修改</el-button>
+          <el-button link type="primary" icon="Delete" @click="() => handleDelete(scope.row)" v-hasPermi="['manage:college:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <pagination
-        v-show="total>0"
+        v-show="total > 0"
         :total="total"
         v-model:page="queryParams.pageNum"
         v-model:limit="queryParams.pageSize"
@@ -87,18 +87,18 @@
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="collegeRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="学院名称" prop="collegeName">
-          <el-input v-model="form.collegeName" placeholder="请输入学院名称" />
+          <el-input v-model="form.collegeName" placeholder="请输入学院名称"/>
         </el-form-item>
         <el-form-item label="学院LOGO" prop="collegeLogo">
-          <dy-upload v-model="form.collegeLogo" placeholder="请输入学院LOGO路径/URL" />
+          <dy-upload v-model="form.collegeLogo" placeholder="请输入学院LOGO路径/URL"/>
         </el-form-item>
         <el-form-item label="备注信息" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入备注信息" />
+          <el-input v-model="form.remark" placeholder="请输入备注信息"/>
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="mitForm">确 定</el-button>
+          <el-button type="primary" @click="submitForm">确 定</el-button>
           <el-button @click="cancel">取 消</el-button>
         </div>
       </template>
@@ -107,28 +107,50 @@
 </template>
 
 <script setup name="College">
-import { listCollege, getCollege, delCollege, addCollege, updateCollege } from "@/api/teaching/college";
+import { ref, reactive, toRefs } from 'vue';
+import {
+  listCollege,
+  getCollege,
+  delCollege,
+  addCollege,
+  updateCollege,
+  addCollegeSub,
+  getCollegeSub,
+  updateCollegeSub,
+  delCollegeSub,
+} from "@/api/teaching/college";
 import DyUpload from "@/components/dy-upload/index.vue";
+import useUserStore from "@/store/modules/user";
+import router from "@/router/index.js";
 
 const { proxy } = getCurrentInstance();
+const userInfo = useUserStore();
 
 const collegeList = ref([]);
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
-const ids = ref([]);
-const single = ref(true);
-const multiple = ref(true);
+const isExpandAll = ref(false);
+const refreshTable = ref(true);
 const total = ref(0);
 const title = ref("");
+const isEditMode = ref(false); // 用于判断是编辑模式
+const parentCollegeId = ref(null); // 用于存储父级学院ID
+const type = ref(null)
 
 const data = reactive({
-  form: {},
+  form: {
+    collegeId: null,
+    collegeSubId:null,
+    collegeName: null,
+    collegeLogo: null,
+    remark: null,
+    schoolId: null, // 学校ID
+  },
   queryParams: {
     pageNum: 1,
     pageSize: 10,
     collegeName: null,
-    collegeLogo: null,
   },
   rules: {
     collegeName: [
@@ -144,29 +166,29 @@ function getList() {
   loading.value = true;
   listCollege(queryParams.value).then(response => {
     collegeList.value = response.rows;
+    // collegeList.value =proxy.handleTree(response.rows, "collegeSubId");
     total.value = response.total;
     loading.value = false;
   });
 }
 
-// 取消按钮
+/** 取消按钮 */
 function cancel() {
   open.value = false;
   reset();
 }
 
-// 表单重置
+/** 表单重置 */
 function reset() {
   form.value = {
+    collegeId: null,
+    collegeSubId:null,
     collegeName: null,
     collegeLogo: null,
     remark: null,
-    createBy: null,
-    createTime: null,
-    updateBy: null,
-    updateTime: null,
-    isDel: null
+    schoolId: null, // 清除学校ID
   };
+  parentCollegeId.value = null; // 清除父级学院ID
   proxy.resetForm("collegeRef");
 }
 
@@ -182,51 +204,98 @@ function resetQuery() {
   handleQuery();
 }
 
-// 多选框选中数据
-function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.collegeId);
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
+/** 展开/折叠操作 */
+function toggleExpandAll() {
+  refreshTable.value = false;
+  isExpandAll.value = !isExpandAll.value;
+  nextTick(() => {
+    refreshTable.value = true;
+  });
+}
+
+function handleInvite (row){
+  router.push('/teaching/college-invite/index/'+row.deptId)
 }
 
 /** 新增按钮操作 */
-function handleAdd(row) {
-  reset();
-  // const _collegeId = row.collegeId || ids.value
-  // getCollege(_collegeId).then(response => {
-  //   form.value = response.data;
-    open.value = true;
-    title.value = "添加学院信息";
-  // });
+function handleAdd(row = null) {
+  reset(); // 重置表单
+  isEditMode.value = false; // 设置为新增模式
+  form.value.schoolId = userInfo.schoolId; // 设置学校ID
+  if (row) {
+    title.value = "添加二级学院"; // 标题为添加二级学院
+    parentCollegeId.value = row.collegeId; // 设置父级学院ID
+    form.value.collegeId = null; // 新增时不设置 collegeId
+  } else {
+    title.value = "添加一级学院"; // 标题为添加一级学院
+    parentCollegeId.value = null; // 一级学院无父级ID
+  }
+
+  open.value = true; // 打开对话框
 }
 
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
-  const _collegeId = row.collegeId || ids.value
-  getCollege(_collegeId).then(response => {
-    form.value = response.data;
-    open.value = true;
-    title.value = "修改学院信息";
-  });
+  form.value.schoolId = userInfo.schoolId; // 设置学校ID
+  form.value.collegeId = row.collegeId; // 设置当前学院ID
+  isEditMode.value = true; // 设置为编辑模式
+  type.value = row.type
+
+  if (row.type == 1) {
+    title.value = "修改一级学院"; // 标题为修改一级学院
+    getCollege(row.collegeId).then(response => {
+      form.value = response.data; // 获取一级学院数据
+      open.value = true; // 打开对话框
+    });
+  } else if (row.type == 2) {
+    title.value = "修改二级学院"; // 标题为修改二级学院
+    getCollegeSub(row.collegeSubId).then(response => {
+      form.value = response.data; // 获取二级学院数据
+      open.value = true; // 打开对话框
+    });
+  }
 }
 
 /** 提交按钮 */
-function mitForm() {
+function submitForm() {
   proxy.$refs["collegeRef"].validate(valid => {
     if (valid) {
-      if (form.value.collegeId != null) {
-        updateCollege(form.value).then(response => {
-          proxy.$modal.msgSuccess("修改成功");
-          open.value = false;
-          getList();
-        });
+      console.log(form.value)
+      console.log(parentCollegeId.value)
+      console.log(type.value)
+      // return
+      if (isEditMode.value) {
+        // 修改操作
+        if (type.value == 2) {
+          updateCollegeSub(form.value).then(() => {
+            proxy.$modal.msgSuccess("二级学院修改成功");
+            open.value = false;
+            getList();
+          });
+        } else if (type.value == 1) {
+          updateCollege(form.value).then(() => {
+            proxy.$modal.msgSuccess("一级学院修改成功");
+            open.value = false;
+            getList();
+          });
+        }
       } else {
-        addCollege(form.value).then(response => {
-          proxy.$modal.msgSuccess("新增成功");
-          open.value = false;
-          getList();
-        });
+        // 新增操作
+        if (parentCollegeId.value) {
+          form.value.collegeId = parentCollegeId.value; // 设置父级学院ID
+          addCollegeSub(form.value).then(() => {
+            proxy.$modal.msgSuccess("二级学院新增成功");
+            open.value = false;
+            getList();
+          });
+        } else {
+          addCollege(form.value).then(() => {
+            proxy.$modal.msgSuccess("一级学院新增成功");
+            open.value = false;
+            getList();
+          });
+        }
       }
     }
   });
@@ -234,20 +303,28 @@ function mitForm() {
 
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const _collegeIds = row.collegeId || ids.value;
-  proxy.$modal.confirm('是否确认删除学院信息编号为"' + _collegeIds + '"的数据项？').then(function() {
-    return delCollege(_collegeIds);
-  }).then(() => {
-    getList();
-    proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+  if (row.type == 1) {
+    proxy.$modal.confirm(`是否确认删除一级学院 "${row.collegeName}"？`).then(() => {
+      return delCollege(row.collegeId);
+    }).then(() => {
+      getList();
+      proxy.$modal.msgSuccess("一级学院删除成功");
+    });
+  } else if (row.type == 2) {
+    proxy.$modal.confirm(`是否确认删除二级学院 "${row.collegeName}"？`).then(() => {
+      return delCollegeSub(row.collegeSubId);
+    }).then(() => {
+      getList();
+      proxy.$modal.msgSuccess("二级学院删除成功");
+    });
+  }
 }
 
 /** 导出按钮操作 */
 function handleExport() {
   proxy.download('manage/college/export', {
     ...queryParams.value
-  }, `college_${new Date().getTime()}.xlsx`)
+  }, `college_${new Date().getTime()}.xlsx`);
 }
 
 getList();

@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="100px">
-      <el-form-item label="测评名称" prop="assessmentName">
+      <el-form-item :label="typeTitle+'名称'" prop="assessmentName">
         <el-input
             v-model="queryParams.assessmentName"
             placeholder="请输入测评名称"
@@ -9,7 +9,7 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="测评开始时间" prop="startTime">
+      <el-form-item :label="typeTitle+'开始时间'" prop="startTime">
         <el-date-picker clearable
                         v-model="queryParams.startTime"
                         type="date"
@@ -17,23 +17,13 @@
                         placeholder="请选择测评开始时间">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="测评结束时间" prop="endTime">
+      <el-form-item :label="typeTitle+'结束时间'" prop="endTime">
         <el-date-picker clearable
                         v-model="queryParams.endTime"
                         type="date"
                         value-format="YYYY-MM-DD"
                         placeholder="请选择测评结束时间">
         </el-date-picker>
-      </el-form-item>
-      <el-form-item label="关联书籍" prop="bookId">
-        <el-select v-model="queryParams.bookId" filterable placeholder="请选择关联书籍" clearable style="width: 200px">
-          <el-option
-              v-for="item in bookList"
-              :key="item.bookId"
-              :label="item.bookName"
-              :value="item.bookId"
-          />
-        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -48,8 +38,9 @@
             plain
             icon="Plus"
             @click="handleAdd"
-            v-hasPermi="['manage:course:add']"
-        >新增</el-button>
+            v-hasPermi="['manage:assessment:add']"
+        >组建{{typeTitle}}
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -58,8 +49,9 @@
             icon="Edit"
             :disabled="single"
             @click="handleUpdate"
-            v-hasPermi="['manage:course:edit']"
-        >修改</el-button>
+            v-hasPermi="['manage:assessment:edit']"
+        >修改
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -68,8 +60,9 @@
             icon="Delete"
             :disabled="multiple"
             @click="handleDelete"
-            v-hasPermi="['manage:course:remove']"
-        >删除</el-button>
+            v-hasPermi="['manage:assessment:remove']"
+        >删除
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -77,44 +70,50 @@
             plain
             icon="Download"
             @click="handleExport"
-            v-hasPermi="['manage:course:export']"
-        >导出</el-button>
+            v-hasPermi="['manage:assessment:export']"
+        >导出
+        </el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="courseList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="测评编码" align="center" prop="courseId" />
-      <el-table-column label="测评名称" align="center" prop="assessmentName" />
-      <el-table-column label="测评简介" align="center" prop="courseIntro" />
-      <el-table-column label="测评开始时间" align="center" prop="startTime" width="180">
+    <el-table v-loading="loading" :data="evaluateList" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column :label="typeTitle + '编码'" align="center" prop="assessmentId"/>
+      <el-table-column :label="typeTitle+'名称'" align="center" prop="assessmentName"/>
+      <el-table-column :label="typeTitle+'开始时间'" align="center">
         <template #default="scope">
           <span>{{ parseTime(scope.row.startTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="测评结束时间" align="center" prop="endTime" width="180">
+      <el-table-column :label="typeTitle+'结束时间'" align="center">
         <template #default="scope">
           <span>{{ parseTime(scope.row.endTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="测评状态" align="center" prop="endTime" width="180">
+      <el-table-column :label="typeTitle+'时长'" align="center" prop="examinationTime"/>
+      <el-table-column label="完成情况">
         <template #default="scope">
-          <dict-tag :options="course_status" :value="scope.row.status" />
+          <div class="performance">{{ scope.row.performance }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="关联书籍" align="center" prop="bookId" />
-      <el-table-column label="作业占比" align="center" prop="homeworkWeight" />
-      <el-table-column label="考试占比" align="center" prop="examWeight" />
-      <el-table-column label="阅读占比" align="center" prop="readingWeight" />
-      <el-table-column label="备注信息" align="center" prop="remark" />
+      <el-table-column label="创建时间" align="center">
+        <template #default="scope">
+          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="修改时间" align="center">
+        <template #default="scope">
+          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="备注信息" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width" width="300">
         <template #default="scope">
-          <el-button link type="primary" icon="Menu" @click="handleClass(scope.row)" v-hasPermi="['manage:course:list']">班级</el-button>
-          <el-button link type="primary" @click="goEvaluate(2)" v-hasPermi="['manage:course:list']"><i style="font-size: 14px;" class="el-icon iconfont icon-fabuzuoye"></i>发布作业</el-button>
-          <el-button link type="primary" @click="goEvaluate(1)" v-hasPermi="['manage:course:list']"><i style="font-size: 14px;" class="el-icon iconfont icon-fabukaoshi"></i>发布考试</el-button>
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['manage:course:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['manage:course:remove']">删除</el-button>
+          <el-button link type="primary" icon="Menu" @click="handleDetails(scope.row)" v-hasPermi="['manage:assessment:list']">{{typeTitle}}情况</el-button>
+          <el-button link type="primary" icon="View" @click="handlePreview(scope.row)" v-hasPermi="['manage:assessment:list']">{{typeTitle}}预览</el-button>
+          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['manage:assessment:edit']">修改</el-button>
+          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['manage:assessment:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -129,66 +128,42 @@
 
     <!-- 添加或修改测评对话框 -->
     <el-dialog :title="title" v-model="open" width="600px" append-to-body>
-      <el-form ref="courseRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="测评名称" prop="assessmentName">
-          <el-input v-model="form.assessmentName" placeholder="请输入测评名称" />
-        </el-form-item>
-        <el-form-item label="测评简介" prop="courseIntro">
-          <el-input v-model="form.courseIntro" type="textarea" placeholder="请输入内容" />
+      <el-form ref="evaluateRef" :model="form" :rules="rules" label-width="110px">
+        <el-form-item :label="typeTitle+'名称'" prop="assessmentName">
+          <el-input v-model="form.assessmentName" placeholder="请输入测评名称"/>
         </el-form-item>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="开始时间" prop="startTime">
-              <el-date-picker clearable
-                              v-model="form.startTime"
-                              type="date"
-                              value-format="YYYY-MM-DD"
-                              placeholder="请选择测评开始时间">
-              </el-date-picker>
+            <el-form-item :label="typeTitle+'发布时间'" prop="startTime">
+              <el-date-picker
+                  v-model="form.startTime"
+                  type="datetime"
+                  placeholder="开始时间"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="结束时间" prop="endTime">
-              <el-date-picker clearable
-                              v-model="form.endTime"
-                              type="date"
-                              value-format="YYYY-MM-DD"
-                              placeholder="请选择测评结束时间">
-              </el-date-picker>
+            <el-form-item :label="typeTitle+'截止时间'" prop="endTime">
+              <el-date-picker
+                  v-model="form.endTime"
+                  type="datetime"
+                  placeholder="结束时间"
+              />
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="关联书籍" prop="bookId">
-          <el-select v-model="queryParams.bookId" filterable placeholder="请选择关联书籍" clearable style="width: 200px">
+        <el-form-item label="考试时长" prop="endTime" v-if="route.params.type == 1">
+          <el-select v-model="form.examtime" clearable placeholder="请选择" style="width: 100%"  >
             <el-option
-                v-for="item in bookList"
-                :key="item.bookId"
-                :label="item.bookName"
-                :value="item.bookId"
-            />
+                v-for="item in exam_time"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+            </el-option>
           </el-select>
-        </el-form-item>
-        <el-form-item label="授课老师" prop="teacherId">
-          <el-select v-model="queryParams.teacherId" filterable placeholder="请选择关联书籍" clearable style="width: 200px">
-            <el-option
-                v-for="item in bookList"
-                :key="item.bookId"
-                :label="item.bookName"
-                :value="item.bookId"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="作业占比" prop="homeworkWeight">
-          <el-input-number v-model="form.homeworkWeight" placeholder="（0.00~100.00）" />
-        </el-form-item>
-        <el-form-item label="考试占比" prop="examWeight">
-          <el-input-number v-model="form.examWeight" placeholder="（0.00~100.00）" />
-        </el-form-item>
-        <el-form-item label="阅读占比" prop="readingWeight">
-          <el-input-number v-model="form.readingWeight" placeholder="（0.00~100.00）" />
         </el-form-item>
         <el-form-item label="备注信息" prop="remark">
-          <el-input  v-model="form.remark"  type="textarea" placeholder="请输入备注信息" />
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入备注信息"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -201,18 +176,22 @@
   </div>
 </template>
 
-<script setup name="Course">
-import { listCourse, getCourse, delCourse, addCourse, updateCourse , listTextbook} from "@/api/teaching/course";
+<script setup name="Evaluate">
+import {
+  listEvaluate,
+  delEvaluate,
+  listTextbook
+} from "@/api/teaching/evaluate";
 import {parseTime} from "ruoyi/src/utils/ruoyi";
-import {useRouter} from "vue-router"
-import DictTag from "@/components/DictTag/index.vue";
+import {useRouter,useRoute} from "vue-router";
 
-const { proxy } = getCurrentInstance();
-const { course_status } = proxy.useDict('course_status');
+const {proxy} = getCurrentInstance();
+const {exam_time} = proxy.useDict('exam_time');
 
 const router = useRouter();
-// const courseList = ref([]);
-// const bookList = ref([]);
+const route = useRoute();
+const evaluateList = ref([]);
+const bookList = ref([]);
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -221,6 +200,8 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
+const typeTitle = route.query.type == 1 ? '考试' : route.query.type == 2 ? '作业' :'测评' ;
+
 
 const data = reactive({
   form: {},
@@ -228,120 +209,38 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     assessmentName: null,
-    courseIntro: null,
     startTime: null,
     endTime: null,
-    bookId: null,
-    teacherId:null
+    bookId: route.query.bookId,
+    assessType:route.query.assessType,
+    courseId:route.query.courseId,
   },
   rules: {
     assessmentName: [
-      { required: true, message: "测评名称不能为空", trigger: "blur" }
+      {required: true, message: typeTitle+"名称不能为空", trigger: "blur"}
     ],
     startTime: [
-      { required: true, message: "测评开始时间不能为空", trigger: "blur" }
+      {required: true, message: typeTitle+"发布时间不能为空", trigger: "blur"}
     ],
     endTime: [
-      { required: true, message: "测评结束时间不能为空", trigger: "blur" }
-    ],
-    bookId: [
-      { required: true, message: "关联书籍不能为空", trigger: "blur" }
-    ],
-    teacherId: [
-      { required: true, message: "授课老师不能为空", trigger: "blur" }
-    ],
-    homeworkWeight: [
-      { required: true, message: "作业占比不能为空", trigger: "blur" }
-    ],
-    examWeight: [
-      { required: true, message: "考试占比不能为空", trigger: "blur" }
-    ],
-    readingWeight: [
-      { required: true, message: "阅读占比不能为空", trigger: "blur" }
+      {required: true, message: typeTitle+"截止时间不能为空", trigger: "blur"}
     ],
   }
 });
 
-const { queryParams, form, rules } = toRefs(data);
-
-//模拟假数据
-const mockCourseList = [
-  {
-    courseId: 1,
-    assessmentName: "数学基础",
-    courseIntro: "基础数学测评",
-    startTime: "2023-09-01",
-    endTime: "2023-12-01",
-    status: 1,
-    bookId: 101,
-    homeworkWeight: 30,
-    examWeight: 40,
-    readingWeight: 30,
-    remark: "无",
-  },
-  {
-    courseId: 2,
-    assessmentName: "英语语法",
-    courseIntro: "深入英语语法学习",
-    startTime: "2023-09-10",
-    endTime: "2023-12-10",
-    status: 1,
-    bookId: 102,
-    homeworkWeight: 20,
-    examWeight: 50,
-    readingWeight: 30,
-    remark: "注意作业",
-  },
-  {
-    courseId: 3,
-    assessmentName: "科学探究",
-    courseIntro: "科学实验与探究",
-    startTime: "2023-09-15",
-    endTime: "2023-12-15",
-    status: 0,
-    bookId: 103,
-    homeworkWeight: 40,
-    examWeight: 30,
-    readingWeight: 30,
-    remark: "实验重要",
-  },
-  {
-    courseId: 4,
-    assessmentName: "历史概论",
-    courseIntro: "学习历史背景与事件",
-    startTime: "2023-09-20",
-    endTime: "2023-12-20",
-    status: 1,
-    bookId: 104,
-    homeworkWeight: 25,
-    examWeight: 35,
-    readingWeight: 40,
-    remark: "注意复习",
-  }
-];
-
-const mockBookList = [
-  { bookId: 101, bookName: "数学书籍" },
-  { bookId: 102, bookName: "英语书籍" },
-  { bookId: 103, bookName: "科学书籍" },
-  { bookId: 104, bookName: "历史书籍" },
-];
-
-// 在你的 setup 函数中替换从 API 获取数据的部分
-const courseList = ref(mockCourseList);
-const bookList = ref(mockBookList);
+const {queryParams, form, rules} = toRefs(data);
 
 /** 查询测评列表 */
 function getList() {
   loading.value = true;
-  // listCourse(queryParams.value).then(response => {
-  //   courseList.value = response.rows;
-  //   total.value = response.total;
-  loading.value = false;
-  // });
+  listEvaluate(queryParams.value).then(response => {
+    evaluateList.value = response.rows;
+    total.value = response.total;
+    loading.value = false;
+  });
 }
 
-function getBookList(){
+function getBookList() {
   listTextbook().then(response => {
     bookList.value = response.data;
   })
@@ -356,22 +255,15 @@ function cancel() {
 // 表单重置
 function reset() {
   form.value = {
-    courseId: null,
+    assessmentId: null,
     assessmentName: null,
-    courseIntro: null,
+    examtime:null,
     startTime: null,
     endTime: null,
     bookId: null,
-    homeworkWeight: null,
-    examWeight: null,
-    readingWeight: null,
     remark: null,
-    createBy: null,
-    createTime: null,
-    updateBy: null,
-    updateTime: null,
   };
-  proxy.resetForm("courseRef");
+  proxy.resetForm("evaluateRef");
 }
 
 /** 搜索按钮操作 */
@@ -388,75 +280,61 @@ function resetQuery() {
 
 // 多选框选中数据
 function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.courseId);
+  ids.value = selection.map(item => item.assessmentId);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
-}
-
-/** 新增按钮操作 */
-function handleAdd() {
-  reset();
-  open.value = true;
-  title.value = "添加测评";
 }
 
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
-  const _courseId = row.courseId || ids.value
-  getCourse(_courseId).then(response => {
-    form.value = response.data;
-    open.value = true;
-    title.value = "修改测评";
-  });
+  router.push("/teaching/study/build?courseId=" + queryParams.value.courseId + '&bookId='+ queryParams.value.bookId + '&assessType='+ queryParams.value.assessType+ '&assessmentId='+ row.assessmentId)
 }
 
-function handleClass(row){
+/*组件测评*/
+function handleAdd(){
+  router.push("/teaching/study/build?courseId=" + queryParams.value.courseId + '&bookId='+ queryParams.value.bookId + '&assessType='+ queryParams.value.assessType)
+}
+
+/*测评情况*/
+function handleDetails(row) {
   //跳转
-  router.push("/teaching/course-class/index/" + row.courseId);
+  // router.push("/teaching/study/evaluateAllDetails?courseId=" + row.courseId + '&assessType='+ row.assessType+ '&assessmentId='+ row.assessmentId);
+  router.push("/teaching/study/evaluateAllDetails?courseId=" +4 + '&assessType='+ 1 + '&assessmentId='+ 1);
 }
-
-// 跳转至创建测评页面
-function goEvaluate(type){
-  router.push('/teaching/course-evaluate/index/'+type)
-  // router.push('/teaching/course/evaluate/='+type)
+function handlePreview(row) {
+  //跳转
+  // router.push("/teaching/course-class/index/" + row.courseId);
 }
 
 /** 提交按钮 */
 function submitForm() {
-  proxy.$refs["courseRef"].validate(valid => {
+  proxy.$refs["evaluateRef"].validate(valid => {
     if (valid) {
-      if (form.value.courseId != null) {
-        updateCourse(form.value).then(response => {
+        updateEvaluate(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
         });
-      } else {
-        addCourse(form.value).then(response => {
-          proxy.$modal.msgSuccess("新增成功");
-          open.value = false;
-          getList();
-        });
-      }
     }
   });
 }
 
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const _courseIds = row.courseId || ids.value;
-  proxy.$modal.confirm('是否确认删除测评编号为"' + _courseIds + '"的数据项？').then(function() {
-    return delCourse(_courseIds);
+  const _assessmentIds = row.assessmentId || ids.value;
+  proxy.$modal.confirm('是否确认删除'+typeTitle+'编号为"' + row.assessmentName + '"的数据项？').then(function () {
+    return delEvaluate(_assessmentIds);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+  }).catch(() => {
+  });
 }
 
 /** 导出按钮操作 */
 function handleExport() {
-  proxy.download('manage/course/export', {
+  proxy.download('manage/assessment/export', {
     ...queryParams.value
   }, `测评列表_${new Date().getTime()}.xlsx`)
 }
@@ -464,3 +342,15 @@ function handleExport() {
 getList();
 getBookList();
 </script>
+<style scoped>
+.performance {
+  width: 70px;
+  height: 30px;
+  background: #2c3e50;
+  border-radius: 10px;
+  color: white;
+  font-size: 15px;
+  text-align: center;
+  line-height: 30px;
+}
+</style>

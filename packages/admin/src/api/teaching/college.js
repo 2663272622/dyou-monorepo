@@ -42,3 +42,42 @@ export function delCollege(collegeId) {
         method: 'delete'
     })
 }
+
+
+/*
+* 二级学院
+* */
+
+// 查询二级学院信息详细
+export function getCollegeSub(collegeId) {
+    return request({
+        url: '/manage/collegeSub/' + collegeId,
+        method: 'get'
+    })
+}
+
+// 新增二级学院信息
+export function addCollegeSub(data) {
+    return request({
+        url: '/manage/collegeSub',
+        method: 'post',
+        data: data
+    })
+}
+
+// 修改二级学院信息
+export function updateCollegeSub(data) {
+    return request({
+        url: '/manage/collegeSub',
+        method: 'put',
+        data: data
+    })
+}
+
+// 删除二级学院信息
+export function delCollegeSub(collegeSubId) {
+    return request({
+        url: '/manage/collegeSub/' + collegeSubId,
+        method: 'delete'
+    })
+}

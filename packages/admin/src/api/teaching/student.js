@@ -4,8 +4,8 @@ import request from '@/utils/request'
 export function listStudent(query) {
     return request({
         url: '/manage/studentCourse/list',
-        method: 'get',
-        params: query
+        method: 'post',
+        data: query
     })
 }
 
@@ -46,9 +46,9 @@ export function delStudent(studentId) {
 // 查询待审学生信息列表
 export function listStudentAudit(query) {
     return request({
-        url: '/manage/studentCourse/studentList',
-        method: 'get',
-        params: query
+        url: '/manage/studentCourse/examineStudentList',
+        method: 'post',
+        data: query
     })
 }
 
@@ -60,3 +60,13 @@ export function updateStudentAudit(data) {
         data: data
     })
 }
+
+// 查询待审核学生数量
+export function listAuditNum(data) {
+    return request({
+        url: '/manage/studentCourse/getNumByPending',
+        method: 'post',
+        data: data
+    })
+}
+

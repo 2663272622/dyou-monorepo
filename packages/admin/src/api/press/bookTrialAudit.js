@@ -17,28 +17,12 @@ export function getBookshelf(id) {
     })
 }
 
-// 新增老师试用申请
-export function addBookshelf(data) {
+// 修改老师试用申请
+export function updateBookshelf(data) {
     return request({
-        url: '/manage/teacherBookshelf',
+        url: '/manage/teacherBookshelf/auditTryBook',
         method: 'post',
         data: data
     })
 }
 
-// 修改老师试用申请
-export function updateBookshelf(data) {
-    return request({
-        url: '/manage/teacherBookshelf',
-        method: 'put',
-        data: data
-    })
-}
-
-// 删除老师试用申请
-export function delBookshelf(id) {
-    return request({
-        url: '/manage/teacherBookshelf/' + id,
-        method: 'delete'
-    })
-}

@@ -68,9 +68,9 @@
                            v-hasPermi="['system:user:export']">导出
                 </el-button>
               </el-col>
-              <el-col :span="1.5">
-                <el-button color="#626aef" plain icon="Link" @click="handleExport" v-if="userInfo.dept.deptType == 2">分享加入链接</el-button>
-              </el-col>
+<!--              <el-col :span="1.5">-->
+<!--                <el-button color="#626aef" plain icon="Link" @click="handleInvite" v-hasPermi="['system:user:invite']">分享加入链接</el-button>-->
+<!--              </el-col>-->
               <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
             </el-row>
 
@@ -429,6 +429,12 @@ function handleExport() {
   }, `user_${new Date().getTime()}.xlsx`);
 };
 
+/** 分享按钮操作 */
+function handleInvite() {
+  router.push('')
+};
+
+
 /** 用户状态修改  */
 function handleStatusChange(row) {
   let text = row.status === "0" ? "启用" : "停用";
@@ -565,11 +571,11 @@ function handleUpdate(row) {
 };
 
 const handleChange = (value) => {
-  getUserInfo({platType:value[0]}).then(response => {
-    roleOptions.value = response.roles;
-    form.value.platType = value[0]; //平台类型
+  // getUserInfo({platType:value[0]}).then(response => {
+    // roleOptions.value = response.roles;
+    // form.value.platType = value[0]; //平台类型
     // form.value.roleIds = response.roleIds;
-  });
+  // });
 }
 
 

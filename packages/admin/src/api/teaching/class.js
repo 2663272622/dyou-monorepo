@@ -8,6 +8,14 @@ export function listClass(query) {
         params: query
     })
 }
+// 查询课程列表
+export function listCourse(query) {
+    return request({
+        url: '/manage/course/getAllList',
+        method: 'get',
+        params: query
+    })
+}
 
 // 查询课程班级详细
 export function getClass(classId) {

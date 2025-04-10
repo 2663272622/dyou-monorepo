@@ -10,8 +10,18 @@
         />
       </el-form-item>
       <el-form-item label="申请状态" prop="applyStatus">
-        <el-select v-model="queryParams.applyStatus" placeholder="请选择" style="width: 200px;">
-       ·
+        <el-select v-model="queryParams.applyStatus" clearable placeholder="请选择" style="width: 200px;">
+          <el-option
+              v-for="status in apply_status"
+              :key="status.value"
+              :label="status.label"
+              :value="status.value"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="试用时间" prop="applyStatus">
+        <el-select v-model="queryParams.probationTime" clearable placeholder="试用时间" style="width: 200px;">
+          <el-option v-for="item in probation_time" :key="item.value" :label="item.label" :value="item.value"/>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -21,26 +31,17 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-            type="success"
-            plain
-            icon="Edit"
-            :disabled="single"
-            @click="handleUpdate"
-            v-hasPermi="['manage:bookshelf:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-            type="danger"
-            plain
-            icon="Delete"
-            :disabled="multiple"
-            @click="handleDelete"
-            v-hasPermi="['manage:bookshelf:remove']"
-        >删除</el-button>
-      </el-col>
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--            type="success"-->
+<!--            plain-->
+<!--            icon="Edit"-->
+<!--            :disabled="single"-->
+<!--            @click="handleUpdate"-->
+<!--            v-hasPermi="['manage:bookshelf:edit']"-->
+<!--        >审核-->
+<!--        </el-button>-->
+<!--      </el-col>-->
       <el-col :span="1.5">
         <el-button
             type="warning"
@@ -48,33 +49,39 @@
             icon="Download"
             @click="handleExport"
             v-hasPermi="['manage:bookshelf:export']"
-        >导出</el-button>
+        >导出
+        </el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="bookshelfList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="编号" align="center" prop="id" />
-      <el-table-column label="书籍名称" align="center" prop="bookName" />
-      <el-table-column label="用户名称" align="center" prop="userName" />
-      <el-table-column label="出版社" align="center" prop="publisherName" />
-      <el-table-column label="书架排序" align="center" prop="sortOrder" />
-      <el-table-column label="申请状态" align="center" >
-         <template #default="scope">
-           <dict-tag :options="apply_status" :value="scope.row.applyStatus" />
-         </template>
+      <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="编号" align="center" prop="id"/>
+      <el-table-column label="书籍名称" align="center" prop="bookName"/>
+      <el-table-column label="用户名称" align="center" prop="userName"/>
+      <el-table-column label="出版社" align="center" prop="publisherName"/>
+      <el-table-column label="试用时间" align="center">
+        <template #default="scope">
+          <dict-tag :options="probation_time" :value="scope.row.probationTime"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="申请状态" align="center">
+        <template #default="scope">
+          <dict-tag :options="apply_status" :value="scope.row.applyStatus"/>
+        </template>
       </el-table-column>
       <el-table-column label="试用结束时间" align="center" prop="probationEndTime">
         <template #default="scope">
           <span>{{ parseTime(scope.row.probationEndTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="备注信息" align="center" prop="remark" />
+      <el-table-column label="备注信息" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['manage:bookshelf:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['manage:bookshelf:remove']">删除</el-button>
+          <el-button v-if="scope.row.applyStatus == 0" link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+                     v-hasPermi="['manage:bookshelf:edit']">审核
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -90,20 +97,23 @@
     <!-- 添加或修改老师试用申请对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="bookTrialAudit" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="书架排序" prop="sortOrder">
-          <el-input-number v-model="form.sortOrder" placeholder="书架排序" />
-        </el-form-item>
         <el-form-item label="审核" prop="applyStatus">
           <el-radio-group v-model="form.applyStatus">
             <el-radio
-                v-for="dict in tch_audit_operation"
+                v-for="dict in audit_operation"
                 :key="dict.value"
                 :label="dict.value"
-            >{{dict.label}}</el-radio>
+            >{{ dict.label }}
+            </el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="试用时间" prop="probationTime" v-if="form.applyStatus == 1">
+          <el-select v-model="form.probationTime" placeholder="试用时间" :style="{ width: '100%' }">
+            <el-option v-for="item in probation_time" :key="item.value" :label="item.label" :value="item.value"/>
+          </el-select>
+        </el-form-item>
         <el-form-item label="备注信息" prop="remark">
-          <el-input type="textarea" v-model="form.remark" placeholder="请输入备注信息" />
+          <el-input type="textarea" v-model="form.remark" placeholder="请输入备注信息"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -117,12 +127,15 @@
 </template>
 
 <script setup name="Bookshelf">
-import { listBookshelf, getBookshelf, delBookshelf, addBookshelf, updateBookshelf } from "@/api/press/bookTrialAudit";
-import DictTag from "@/components/DictTag/index.vue";
+import {listBookshelf, getBookshelf, updateBookshelf} from "@/api/press/bookTrialAudit";
 import {parseTime} from "@/utils/ruoyi.js";
 
-const { proxy } = getCurrentInstance();
-const { apply_status ,tch_audit_operation} = proxy.useDict('apply_status','tch_audit_operation');
+const {proxy} = getCurrentInstance();
+const {
+  apply_status,
+  audit_operation,
+  probation_time
+} = proxy.useDict('apply_status', 'audit_operation', 'probation_time');
 
 const bookshelfList = ref([]);
 const open = ref(false);
@@ -141,12 +154,19 @@ const data = reactive({
     pageSize: 10,
     bookName: null,
     applyStatus: null,
+    probationTime:null,
   },
   rules: {
+    probationTime:[
+      {required: true, message: "试用时长不能为空", trigger: "blur"}
+    ],
+    applyStatus:[
+      {required: true, message: "审核不能为空", trigger: "blur"}
+    ],
   }
 });
 
-const { queryParams, form, rules } = toRefs(data);
+const {queryParams, form, rules} = toRefs(data);
 
 /** 查询老师试用申请列表 */
 function getList() {
@@ -168,13 +188,9 @@ function cancel() {
 function reset() {
   form.value = {
     id: null,
-    sortOrder: null,
-    applyStatus:null,
+    probationTime: null,
+    applyStatus: null,
     remark: null,
-    createBy: null,
-    createTime: null,
-    updateBy: null,
-    updateTime: null,
   };
   proxy.resetForm("bookTrialAudit");
 }
@@ -198,13 +214,6 @@ function handleSelectionChange(selection) {
   multiple.value = !selection.length;
 }
 
-/** 新增按钮操作 */
-function handleAdd() {
-  reset();
-  open.value = true;
-  title.value = "添加老师试用申请";
-}
-
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
@@ -220,32 +229,17 @@ function handleUpdate(row) {
 function submitForm() {
   proxy.$refs["bookTrialAudit"].validate(valid => {
     if (valid) {
+      console.log(form.value)
+      // return
       if (form.value.id != null) {
         updateBookshelf(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
         });
-      } else {
-        addBookshelf(form.value).then(response => {
-          proxy.$modal.msgSuccess("新增成功");
-          open.value = false;
-          getList();
-        });
       }
     }
   });
-}
-
-/** 删除按钮操作 */
-function handleDelete(row) {
-  const _ids = row.id || ids.value;
-  proxy.$modal.confirm('是否确认删除老师试用申请编号为"' + _ids + '"的数据项？').then(function() {
-    return delBookshelf(_ids);
-  }).then(() => {
-    getList();
-    proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
 }
 
 /** 导出按钮操作 */

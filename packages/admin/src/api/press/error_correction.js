@@ -1,7 +1,7 @@
-import request from '@/utils/request'
+import request from '@/utils/request.js'
 
 
-// 查询类目列表
+// 查询纠错列表
 export function listCorrection(query) {
     return request({
         url: '/manage/correction/list',
@@ -9,7 +9,8 @@ export function listCorrection(query) {
         params: query
     })
 }
-//查询类目详情信息
+
+//查询纠错详情信息
 export function listCorrectionDetail(correctionId) {
     return request({
         url: '/manage/correction/' +  correctionId,
@@ -17,16 +18,17 @@ export function listCorrectionDetail(correctionId) {
     })
 }
 
-// 修改类目列表
-export function updateCorrection(query) {
+// 修改纠错列表
+export function updateCorrection(data) {
     return request({
-        url: '/manage/correction',
+        url: '/manage/correction/correct',
         method: 'put',
-        data: query
+        data: data
     })
 }
 
-// 删除类目列表
+
+// 删除纠错列表
 export function delCorrection(correctionIds) {
     return request({
         url: '/manage/correction/' +  correctionIds,

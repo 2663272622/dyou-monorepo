@@ -26,6 +26,7 @@
             type="primary"
             plain
             icon="Plus"
+            v-hasPermi="['manage:resource:add']"
             @click="handleAdd"
         >新增
         </el-button>
@@ -36,6 +37,7 @@
             plain
             icon="Edit"
             :disabled="single"
+            v-hasPermi="['manage:resource:edit']"
             @click="handleUpdate"
         >修改
         </el-button>
@@ -46,6 +48,7 @@
             plain
             icon="Delete"
             :disabled="multiple"
+            v-hasPermi="['manage:resource:remove']"
             @click="handleDelete"
         >删除
         </el-button>
@@ -55,6 +58,7 @@
             type="warning"
             plain
             icon="Download"
+            v-hasPermi="['manage:resource:export']"
             @click="handleExport"
         >导出
         </el-button>
@@ -82,10 +86,10 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-tooltip content="修改" placement="top">
-            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
+            <el-button link type="primary" icon="Edit"  v-hasPermi="['manage:resource:edit']" @click="handleUpdate(scope.row)"></el-button>
           </el-tooltip>
           <el-tooltip content="删除" placement="top">
-            <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"></el-button>
+            <el-button link type="primary" icon="Delete"  v-hasPermi="['manage:resource:export']" @click="handleDelete(scope.row)"></el-button>
           </el-tooltip>
         </template>
       </el-table-column>

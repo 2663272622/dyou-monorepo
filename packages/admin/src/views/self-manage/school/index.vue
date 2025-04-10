@@ -42,17 +42,6 @@
         >修改
         </el-button>
       </el-col>
-<!--      <el-col :span="1.5">-->
-<!--        <el-button-->
-<!--            type="danger"-->
-<!--            plain-->
-<!--            icon="Delete"-->
-<!--            :disabled="multiple"-->
-<!--            @click="handleDelete"-->
-<!--            v-hasPermi="['manage:school:remove']"-->
-<!--        >删除-->
-<!--        </el-button>-->
-<!--      </el-col>-->
       <el-col :span="1.5">
         <el-button
             type="warning"
@@ -94,9 +83,6 @@
           <el-tooltip content="修改" placement="top">
             <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
           </el-tooltip>
-<!--          <el-tooltip content="删除" placement="top">-->
-<!--            <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"></el-button>-->
-<!--          </el-tooltip>-->
         </template>
       </el-table-column>
     </el-table>

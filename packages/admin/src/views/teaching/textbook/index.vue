@@ -30,6 +30,7 @@
             type="warning"
             plain
             icon="Download"
+            v-hasPermi="['manage:bookshelf:export']"
             @click="handleExport"
         >导出</el-button>
       </el-col>

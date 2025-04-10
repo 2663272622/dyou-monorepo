@@ -223,3 +223,35 @@ export function getNormalPath(p) {
 export function blobValidate(data) {
   return data.type !== 'application/json'
 }
+
+export function getBeijingTime(format) {
+  const now = new Date();
+  const options = { timeZone: 'Asia/Shanghai' };
+
+/*  const year = now.toLocaleString('zh-CN', { ...options, year: 'numeric' });
+  const month = now.toLocaleString('zh-CN', { ...options, month: '2-digit' });
+  const day = now.toLocaleString('zh-CN', { ...options, day: '2-digit' });
+  const hour24 = now.toLocaleString('zh-CN', { ...options, hour: '2-digit', hour12: false });
+  const hour12 = now.toLocaleString('zh-CN', { ...options, hour: '2-digit', hour12: true });
+  const minute = now.toLocaleString('zh-CN', { ...options, minute: '2-digit' });
+  const second = now.toLocaleString('zh-CN', { ...options, second: '2-digit' });
+  */
+  const year = now.getFullYear(); // 获取四位年份
+  const month = String(now.getMonth() + 1).padStart(2, '0'); // 获取两位月份
+  const day = String(now.getDate()).padStart(2, '0'); // 获取两位日期
+  const hour24 = String(now.getHours()).padStart(2, '0'); // 24 小时制
+  const hour12 = String((now.getHours() % 12) || 12).padStart(2, '0'); // 12 小时制
+  const minute = String(now.getMinutes()).padStart(2, '0'); // 分钟
+  const second = String(now.getSeconds()).padStart(2, '0'); // 秒
+  const ampm = now.getHours() >= 12 ? 'PM' : 'AM'; // AM/PM
+
+  return format
+      .replace('YYYY', year)
+      .replace('MM', month)
+      .replace('DD', day)
+      .replace('HH', hour24)
+      .replace('hh', hour12)
+      .replace('mm', minute)
+      .replace('ss', second)
+      .replace('A', ampm); // 处理 AM/PM
+}

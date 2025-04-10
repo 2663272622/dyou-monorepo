@@ -40,12 +40,12 @@
     </el-form>
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd"
+        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['manage:catalog:add']"
           >新增
         </el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="warning" plain icon="Download" @click="handleExport"
+        <el-button type="warning" plain icon="Download" @click="handleExport" v-hasPermi="['manage:catalog:export']"
           >导出
         </el-button>
       </el-col>
@@ -113,6 +113,7 @@
                 link
                 type="primary"
                 icon="Plus"
+                v-hasPermi="['manage:catalog:add']"
                 @click="handleAdd(scope.row)"
             ></el-button>
           </el-tooltip>
@@ -121,6 +122,7 @@
               link
               type="primary"
               icon="Edit"
+              v-hasPermi="['manage:catalog:edit']"
               @click="handleUpdate(scope.row)"
             ></el-button>
           </el-tooltip>
@@ -129,6 +131,7 @@
               link
               type="primary"
               icon="Delete"
+              v-hasPermi="['manage:catalog:remove']"
               @click="handleDelete(scope.row)"
             ></el-button>
           </el-tooltip>
@@ -209,7 +212,6 @@ import {
   addCategory,
   listCategory,
   listCategoryDetail,
-  listChildCategory,
   updateCategory,
   delCategory,
 } from "@/api/web-manage/book_category.js";

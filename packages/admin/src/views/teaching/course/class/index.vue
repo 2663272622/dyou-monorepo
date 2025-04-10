@@ -9,12 +9,6 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="关联课程" prop="courseId">
-        <el-select v-model="queryParams.courseId" placeholder="关联课程" clearable style="width: 240px">
-          <el-option v-for="item in courseList" :key="item.courseId" :label="item.label"
-                     :value="item.courseId"/>
-        </el-select>
-      </el-form-item>
       <el-form-item label="班级码" prop="classCode">
         <el-input
             v-model="queryParams.classCode"
@@ -22,6 +16,12 @@
             clearable
             @keyup.enter="handleQuery"
         />
+      </el-form-item>
+      <el-form-item label="班级" prop="classId">
+        <el-select v-model="queryParams.classId" placeholder="班级" clearable style="width: 240px">
+          <el-option v-for="item in classList1" :key="item.classId" :label="item.className"
+                     :value="item.classId"/>
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -81,8 +81,9 @@
       <el-table-column label="班级名称" align="center" prop="className"/>
       <el-table-column label="关联课程" align="center" prop="courseName"/>
       <el-table-column label="班级码" :show-overflow-tooltip="true">
-        <template  #default="scope">
-          <el-link :underline="false" type="primary" v-copyText="scope.row.classCode" arg="callback" @click="copyCallback">
+        <template #default="scope">
+          <el-link :underline="false" type="primary" v-copyText="scope.row.classCode" arg="callback"
+                   @click="copyCallback">
             {{ scope.row.classCode }}
           </el-link>
         </template>
@@ -90,18 +91,15 @@
       <el-table-column label="备注信息" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width">
         <template #default="scope">
-<!--          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"-->
-<!--                     v-hasPermi="['manage:class:list']">学生管理-->
-<!--          </el-button>-->
-<!--          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"-->
-<!--                     v-hasPermi="['manage:class:edit']">修改-->
-<!--          </el-button>-->
-<!--          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"-->
-<!--                     v-hasPermi="['manage:class:remove']">删除-->
-<!--          </el-button> -->
-          <el-button link type="primary" icon="Edit" @click="handleStudent(scope.row)">学生管理</el-button>
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button link type="primary" icon="Edit" v-hasPermi="['manage:class:edit']"
+                     @click="handleStudent(scope.row)">学生管理
+          </el-button>
+          <el-button link type="primary" icon="Edit" v-hasPermi="['manage:class:edit']"
+                     @click="handleUpdate(scope.row)">修改
+          </el-button>
+          <el-button link type="primary" icon="Delete" v-hasPermi="['manage:class:remove']"
+                     @click="handleDelete(scope.row)">删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -122,19 +120,21 @@
         </el-form-item>
         <el-form-item label="关联课程" prop="courseId">
           <el-select v-model="form.courseId" filterable placeholder="课程选择" clearable>
-            <!--            <el-option-->
-            <!--                v-for="info in courseList"-->
-            <!--                :key="info.curriculumid"-->
-            <!--                :label="info.curriculumname"-->
-            <!--                :value="info.curriculumid + '+' + info.curriculumname"-->
-            <!--            />-->
+            <el-option
+                v-for="info in courseList"
+                :key="info.courseId"
+                :label="info.courseName"
+                :value="info.courseId"
+            />
           </el-select>
         </el-form-item>
-        <el-form-item label="唯一班级码" prop="classCode">
-          <el-link :underline="false" type="primary" v-copyText="form.classCode" arg="callback" @click="copyCallback">{{ form.classCode }}</el-link>
+        <el-form-item label="班级码" v-if="form.classId != undefined">
+          <el-link :underline="false" type="primary" v-copyText="form.classCode" arg="callback" @click="copyCallback">
+            {{ form.classCode }}
+          </el-link>
         </el-form-item>
         <el-form-item label="备注信息" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入备注信息"/>
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入备注信息"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -148,15 +148,16 @@
 </template>
 
 <script setup name="Class">
-import {listClass, getClass, delClass, addClass, updateClass} from "@/api/teaching/class";
-import {useRouter,useRoute} from 'vue-router'
+import {listClass, getClass, delClass, addClass, updateClass, listCourse} from "@/api/teaching/class";
+import {useRouter, useRoute} from 'vue-router'
 
 const {proxy} = getCurrentInstance();
 const router = useRouter();
 const route = useRoute();
 
-
-// const classList = ref([]);
+const classList = ref([]);
+const classList1 = ref([]);
+const courseList = ref([]);
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -172,8 +173,9 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     className: null,
-    courseId: route.params.courseId,
+    courseId: route.query.courseId,
     classCode: null,
+    classId: null,
   },
   rules: {
     className: [
@@ -181,85 +183,33 @@ const data = reactive({
     ],
     courseId: [
       {required: true, message: "关联课程不能为空", trigger: "blur"}
-    ],
-    classCode: [
-      {required: true, message: "唯一班级码不能为空", trigger: "blur"}
     ]
   }
 });
 
 const {queryParams, form, rules} = toRefs(data);
-const mockClassList = [
-  {
-    classId: 1,
-    courseId: 1,
-    className: "高一（1）班",
-    courseName: "数学基础",
-    classCode: "GY1B",
-    remark: "优秀班级",
-  },
-  {
-    classId: 2,
-    courseId: 2,
-    className: "高一（2）班",
-    courseName: "英语语法",
-    classCode: "GY2B",
-    remark: "活跃班级",
-  },
-  {
-    classId: 3,
-    courseId: 3,
-    className: "高二（1）班",
-    courseName: "科学探究",
-    classCode: "GZ1B",
-    remark: "实验班级",
-  },
-  {
-    classId: 4,
-    courseId: 4,
-    className: "高二（2）班",
-    courseName: "历史概论",
-    classCode: "GZ2B",
-    remark: "文化班级",
-  },
-  {
-    classId: 5,
-    className: "高三（1）班",
-    courseName: "文科综合",
-    classCode: "G3B",
-    remark: "冲刺班级",
-  },
-  {
-    classId: 6,
-    className: "高三（2）班",
-    courseName: "理科综合",
-    classCode: "G3B2",
-    remark: "顶尖班级",
-  },
-];
-
-// 课程选择假数据
-const mockCourseList = [
-  { courseId: 1, label: "数学基础" },
-  { courseId: 2, label: "英语语法" },
-  { courseId: 3, label: "科学探究" },
-  { courseId: 4, label: "历史概论" },
-];
-
-// 在你的 setup 函数中替换从 API 获取数据的部分
-const classList = ref(mockClassList);
-const courseList = ref(mockCourseList);
 
 /** 查询课程班级列表 */
-function getList() {
+function getList(paginated = true) {
+  const params = paginated ? queryParams.value : { courseId: queryParams.value.courseId };
   loading.value = true;
-  // listClass(queryParams.value).then(response => {
-  //   classList.value = response.rows;
-  //   total.value = response.total;
+  listClass(params).then(response => {
+    if (paginated) {
+      classList.value = response.rows;
+      total.value = response.total;
+    } else {
+      classList1.value = response.rows;
+    }
     loading.value = false;
-  // });
+  });
 }
 
+/** 查询课程列表 */
+function getCourseList() {
+  listCourse().then(response => {
+    courseList.value = response.data;
+  });
+}
 // 取消按钮
 function cancel() {
   open.value = false;
@@ -274,10 +224,6 @@ function reset() {
     courseId: null,
     classCode: null,
     remark: null,
-    createBy: null,
-    createTime: null,
-    updateBy: null,
-    updateTime: null,
   };
   proxy.resetForm("classRef");
 }
@@ -322,12 +268,11 @@ function handleUpdate(row) {
     title.value = "修改课程班级";
   });
 }
+
 /** 修改按钮操作 */
 function handleStudent(row) {
-  reset();
-  console.log(route)
-  // router.push("/teaching/course-to/class/" + row.courseId+"/student/" + row.classId)
-  router.push("/teaching/course-to/class/"+row.courseId+"/student/"+row.classId)
+  // router.push("/teaching/study/students/?courseId=" +row.courseId+ '&classId='+ row.classId)
+  router.push({path:'/teaching/study/students',query:{courseId:row.courseId,classId:row.classId}})
 }
 
 /** 提交按钮 */
@@ -339,12 +284,14 @@ function submitForm() {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
+          getList(false);
         });
       } else {
         addClass(form.value).then(response => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           getList();
+          getList(false);
         });
       }
     }
@@ -371,4 +318,6 @@ function handleExport() {
 }
 
 getList();
+getList(false);
+getCourseList();
 </script>

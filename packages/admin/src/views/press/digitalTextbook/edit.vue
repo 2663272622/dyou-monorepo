@@ -11,7 +11,7 @@
                     <el-form-item label="书籍名称" prop="bookName">
                         <el-input v-model="formData.bookName" placeholder="请输入书籍名称" />
                     </el-form-item>
-                </el-col>  
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="作者" prop="authorId">
                         <el-select
@@ -26,52 +26,52 @@
                             />
                         </el-select>
                     </el-form-item>
-                </el-col>  
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="封面" prop="coverUrl">
-                        <dyUpload 
+                        <dyUpload
                             v-model="formData.coverUrl"
                             fileType="5"
                         ></dyUpload>
                     </el-form-item>
-                </el-col>  
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="字数(万)" prop="wordCount">
                         <el-input v-model="formData.wordCount" placeholder="请输入字数" />
                     </el-form-item>
-                </el-col>  
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="ISBN" prop="isbn">
                         <el-input v-model="formData.isbn" placeholder="请输入ISBN" />
                     </el-form-item>
-                </el-col>  
-                
+                </el-col>
+
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="定价" prop="listPrice">
                         <el-input v-model="formData.listPrice"  type="number" placeholder="请输入定价" />
                     </el-form-item>
-                </el-col>  
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="销售价" prop="price">
                         <el-input v-model="formData.price"  type="price" placeholder="请输入价格" />
                     </el-form-item>
-                </el-col>  
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="编辑电话" prop="editorPhone">
                         <el-input v-model="formData.editorPhone"  type="number" placeholder="请输入电话" />
                     </el-form-item>
-                </el-col>  
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="出版日期" prop="publishDate">
                         <el-date-picker
                             style="width: 100%;"
-                            v-model="formData.publishDate" 
+                            v-model="formData.publishDate"
                             placeholder="请输入出版日期"
                             type="date"
                             value-format="YYYY-MM-DD"
                         />
                     </el-form-item>
-                </el-col>  
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="合作院校" prop="schoolId">
                         <el-select
@@ -87,7 +87,7 @@
                             />
                         </el-select>
                     </el-form-item>
-                </el-col>  
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="出版社" prop="publishId">
                         <el-select
@@ -103,8 +103,8 @@
                             />
                         </el-select>
                     </el-form-item>
-                </el-col>  
-                
+                </el-col>
+
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="书籍状态" prop="bookStatus">
                         <el-select
@@ -121,7 +121,7 @@
                             />
                         </el-select>
                     </el-form-item>
-                </el-col> 
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="审核状态" prop="auditStatus">
                         <el-select
@@ -138,8 +138,8 @@
                         />
                         </el-select>
                     </el-form-item>
-                </el-col> 
-                
+                </el-col>
+
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="教学层次" prop="educationLevel">
                         <el-select
@@ -155,14 +155,14 @@
                         />
                         </el-select>
                     </el-form-item>
-                </el-col>  
-                
+                </el-col>
+
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="学科分类" prop="categoryTypeList">
-                        <el-cascader  
-                            v-model="formData.categoryTypeList" 
-                            placeholder="请选择学科分类" 
-                            :options="typeTree" 
+                        <el-cascader
+                            v-model="formData.categoryTypeList"
+                            placeholder="请选择学科分类"
+                            :options="typeTree"
                             style="width:100%"
                             :props="{
                                 label:'categoryName',
@@ -171,7 +171,7 @@
                             }"
                         />
                     </el-form-item>
-                </el-col>  
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="标签" prop="tags">
                         <el-select
@@ -187,31 +187,31 @@
                         />
                         </el-select>
                     </el-form-item>
-                </el-col>  
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="内容摘要" prop="name">
                         <el-input v-model="formData.name" placeholder="请输入内容摘要" />
                     </el-form-item>
-                </el-col>  
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="特别说明" prop="name">
                         <el-input v-model="formData.name" placeholder="请输入特别说明" />
                     </el-form-item>
-                </el-col>  
+                </el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
                     <el-form-item label="本书特色" prop="features">
                         <el-input v-model="formData.features" placeholder="请输入本书特色" />
                     </el-form-item>
-                </el-col>  
-                
+                </el-col>
+
                 <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
                     <el-form-item label="备注" prop="description">
                         <el-input v-model="formData.description" type="textarea" placeholder="请输入内容"></el-input>
                     </el-form-item>
-                </el-col>    
- 
+                </el-col>
+
             </el-row>
- 
+
        </el-form>
        <template #footer>
           <div class="dialog-footer">
@@ -299,7 +299,7 @@ const rules = reactive({
     ],
     publishId: [
         { required: true, message: '请选择出版社', trigger: 'blur' },
-    ], 
+    ],
     schoolId: [
         { required: true, message: '请选择学校', trigger: 'blur' },
     ],
@@ -311,7 +311,7 @@ const rules = reactive({
     ],
     authorId: [
         { required: true, message: '请输入作者', trigger: 'blur' },
-    ], 
+    ],
 
     editorPhone: [
         // { required: true, message: '请输入出版社电话', trigger: 'blur' },
@@ -341,7 +341,7 @@ const getBaseValue = ()=>{
     })
 }
 getBaseValue()
-// 
+//
 
 const handleGetInfo = (id)=>{
     bookbookApi(id).then(res=>{
@@ -373,11 +373,11 @@ const submitForm = () => {
             emit("submit")
         }else{
             let key = Object.keys(msg)[0]
-            
+
             formRef.value.scrollToField(key)
             console.error("表单验证失败",msg)
         }
-    }) 
+    })
 }
 // 点击取消
 const cancel = () => {
