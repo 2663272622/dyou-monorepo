@@ -80,6 +80,21 @@ $--color-info: #909399;
 
 }
 
+// CSS变量定义
+// :root {
+//   /* 亮色模式变量 */
+//   --sidebar-bg: red;
+//   --sidebar-text:pink;
+//   --menu-hover: yellow;
+  
+//   --navbar-bg: blue;
+//   --navbar-text: #303133;
+  
+//   /* splitpanes default-theme 变量 */
+//   --splitpanes-default-bg: #ffffff;
+
+// }
+
 // 暗黑模式变量
 html.dark {
   /* 默认通用 */
@@ -128,13 +143,13 @@ html.dark {
 
   /* 侧边栏菜单覆盖 */
    .sidebar-container {
-    .el-menu-item, .menu-title {
-      color: var(--el-text-color-regular);
-    }
-    & .theme-dark .nest-menu .el-sub-menu>.el-sub-menu__title,
-    & .theme-dark .el-sub-menu .el-menu-item {
-      background-color: var(--el-bg-color) !important;
-    }
+    // .el-menu-item, .menu-title {
+    //   color: var(--el-text-color-regular);
+    // }
+    // & .theme-dark .nest-menu .el-sub-menu>.el-sub-menu__title,
+    // & .theme-dark .el-sub-menu .el-menu-item {
+    //   background-color: var(--el-bg-color) !important;
+    // }
   }
 
   /* 顶部栏栏菜单覆盖 */
@@ -182,8 +197,8 @@ html.dark {
 
     .el-table__header-wrapper, .el-table__fixed-header-wrapper {
       th {
-        background-color: var(--el-bg-color-overlay, #f8f8f9) !important;
-        color: var(--el-text-color-regular, #515a6e);
+        background-color: var(--el-bg-color-overlay, #EFF2F5) !important;
+        color: var(--el-text-color-regular, #EFF2F5);
       }
     }
   }

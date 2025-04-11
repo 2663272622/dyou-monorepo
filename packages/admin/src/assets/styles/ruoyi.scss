@@ -77,11 +77,20 @@
 .el-table {
   .el-table__header-wrapper, .el-table__fixed-header-wrapper {
     th {
-      word-break: break-word;
-      background-color: #f8f8f9 !important;
-      color: #515a6e;
-      height: 40px !important;
-      font-size: 13px;
+        word-break: break-word;
+        background-color: #EFF2F5 !important;
+        // background: #FFFFFF ;
+        color: #515a6e; 
+        height: 40px !important;
+        font-size: 13px; 
+        font-family: Alibaba PuHuiTi 2.0, Alibaba PuHuiTi 20;
+        font-weight: 500;
+        font-size: 14px;
+        color: #1D2129;
+        line-height: 20px;
+        text-align: left;
+        font-style: normal;
+        text-transform: none;
     }
   }
   .el-table__body-wrapper {
@@ -288,3 +297,5 @@
 .splitpanes.default-theme .splitpanes__pane {
   background-color: var(--splitpanes-default-bg) !important;
 }
+
+
