@@ -15,12 +15,12 @@ const useEvaluateStore = defineStore(
                 bookId: null,
                 assessType: null,
                 bankQuestionList: [],
+                questionList:[]
             },
             activeStep: 0,
             pathParameter: {
                 assessmentId: null,
             },
-            questionList:[]
         }),
         actions: {
             // 设置测评的id
@@ -35,7 +35,6 @@ const useEvaluateStore = defineStore(
                 return new Promise((resolve, reject) => {
                     getEvaluate(this.pathParameter.assessmentId).then(res => {
                         this.form = res.data
-                        console.log(res.data)
                         resolve()
                     }).catch(error => {
                         reject(error)
@@ -43,12 +42,29 @@ const useEvaluateStore = defineStore(
                 })
             },
             saveEvaluation() {
-                console.log(111)
+                var obj = this.constructEvaluationObject()
                 if (this.pathParameter.assessmentId) {
-                    return updateEvaluate(this.pathParameter.assessmentId, ...this.form);
+                    obj['assessmentId'] = this.pathParameter.assessmentId
+                    console.log(obj)
+                    return updateEvaluate(obj);
                 } else {
-                    return addEvaluate(...this.form);
+                    return addEvaluate(obj);
                 }
+            },
+            constructEvaluationObject() {
+                return {
+                    assessmentName: this.form.assessmentName,
+                    startTime: this.form.startTime,
+                    endTime:this.form.endTime,
+                    examinationTime: this.form.examinationTime,
+                    catalogIdList: this.form.catalogIdList,
+                    courseClassIdList: this.form.courseClassIdList,
+                    courseId: this.form.courseId,
+                    bookId: this.form.bookId,
+                    assessType: this.form.assessType,
+                    questionList:this.form.questionList,
+                    ...(this.pathParameter.assessmentId && { assessmentId: this.pathParameter.assessmentId }),
+                };
             },
             resetForm() {
                 this.form = {
@@ -61,6 +77,8 @@ const useEvaluateStore = defineStore(
                     courseId: null,
                     bookId: null,
                     assessType: null,
+                    bankQuestionList: [],
+                    questionList:[]
                 };
             },
         }

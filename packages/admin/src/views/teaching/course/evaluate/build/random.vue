@@ -81,15 +81,11 @@ const resetScore = (row) => {
 
 // 点击确认
 const submitForm = () => {
-
-}
+  emit('submit', data); // 传递数据到父组件
+};
 // 点击取消
 const cancel = () => {
   modelValue.value = false
 }
 
 </script>
-
-<style lang="scss">
-
-</style>

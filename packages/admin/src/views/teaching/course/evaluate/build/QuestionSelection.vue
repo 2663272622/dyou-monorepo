@@ -7,7 +7,6 @@
           <el-button icon="RefreshRight" type="primary" link class="operation" @click="handleRandom">随机生成
           </el-button>
         </div>
-        <!--        <div class="placeholder"></div>-->
         <div class="bank-content">
           <div class="question-box" v-for="(item, index) in questions" :key="item.questionType">
             <div class="bank-type">
@@ -29,11 +28,7 @@
                   max-height="250"
               >
                 <el-table-column type="selection" width="30"/>
-                <el-table-column
-                    prop="questionText"
-                    label="题目"
-                    :show-overflow-tooltip="true"
-                />
+                <el-table-column prop="questionText" label="题目" :show-overflow-tooltip="true"/>
                 <el-table-column prop="score" label="分值">
                   <template #default="{ row }">
                     <el-input-number
@@ -66,54 +61,85 @@
       </div>
       <div class="selected-questions">
         <div class="selected-header">
-          <div class="bank-title">已选题目</div>
-          <el-button icon="Delete" type="primary" link class="operation" @click="deleteSelectedQuestions">删除</el-button>
-        </div>
-        <!--        <div class="placeholder"></div>-->
-        <div class="selected-content">
-          <div class="selected-box" v-for="(item, index) in selectedQuestions" :key="item.questionType">
-            <div class="bank-type">
-              <div class="type-title">
-                <dict-tag :options="topic_type" :value="item.questionType"/>
-                ,共计<span class="total">{{ item.questionList.length }}</span
-              >道
-              </div>
-              <el-button type="primary" link @click="viewDetails(item,index)"
-              >查看详情
-              </el-button
-              >
-            </div>
-            <div class="selected-list">
-              <el-table
-                  :data="item.questionList"
-                  :header-row-style="tableHeaderStyle"
-                  @selection-change="(selection) => selectedTopicChange(selection, index)"
-                  max-height="250"
-              >
-                <el-table-column type="selection" width="30"/>
-                <el-table-column
-                    fixed
-                    prop="questionText"
-                    label="题目"
-                    width="300"
-                    :show-overflow-tooltip="true"
-                />
-                <el-table-column prop="score" label="分值"/>
-                <el-table-column fixed="right" label="操作">
-                  <template #default="scope">
-                    <el-button
-                        link
-                        type="primary"
-                        size="small"
-                        @click.prevent="removeQuestion(scope.row)"
-                    >
-                      删除
-                    </el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
+          <div class="selected-header-left">
+            <div class="bank-title">已选题目</div>
+            <div style="margin-left: 10px;">
+              共<span class="total">&thinsp;{{ totalCountAndScore.totalCount }}&thinsp;</span>道题，总分<span
+                class="total">&thinsp;{{ totalCountAndScore.totalScore }}&thinsp;</span>分
             </div>
           </div>
+          <el-button icon="Delete" type="primary" link :disabled="!hasSelectedQuestions" @click="deleteSelectedQuestions">删除</el-button>
+        </div>
+        <div class="selected-content">
+          <draggable
+              :list="selectedQuestions"
+              :group="{ name: 'QuestionType' }"
+              itemKey="questionType"
+              :handle="'.components-draggable'"
+              animation="300"
+              @end="onOuterDragEnd"
+          >
+            <template #item="{ element, index }">
+              <div class="selected-box">
+                <div class="bank-type components-draggable">
+                  <div class="type-title">
+                    <dict-tag :options="topic_type" :value="element.questionType"/>
+                    ,
+                    共计<span class="total">{{ element.questionList.length }}</span>道
+                    &thinsp;分值：<span class="total">{{ getScoreByType(element.questionType) }}</span>
+                  </div>
+                  <el-button type="primary" link @click="viewDetails(element,index)">查看详情</el-button>
+                </div>
+                <div class="selected-list">
+<!--                  <draggable-->
+<!--                      :list="element.questionList"-->
+<!--                      :group="{ name: 'QuestionList' }"-->
+<!--                      itemKey="questionId"-->
+<!--                      animation="300"-->
+<!--                  >-->
+<!--                    <template #item="{ item, i }">-->
+                      <el-table
+                          :data="element.questionList"
+                          :header-row-style="tableHeaderStyle"
+                          @selection-change="(selection) => selectedTopicChange(selection, index)"
+                          row-key="questionId"
+                          max-height="250"
+                      >
+                        <el-table-column
+                            type="index"
+                            align="center"
+                            label=""
+                            fixed
+                            :width="60"
+                        >
+                          <template #default="{ row, $index }">
+                            <el-icon>
+                              <Rank/>
+                            </el-icon>
+                          </template>
+                        </el-table-column>
+                        <el-table-column fixed type="selection" width="30"/>
+                        <el-table-column
+                            prop="questionText"
+                            label="题目"
+                            width="300"
+                            :show-overflow-tooltip="true"
+                        />
+                        <el-table-column prop="score" label="分值"/>
+                        <el-table-column fixed="right" label="操作">
+                          <template #default="scope">
+                            <el-button link type="primary" size="small"  @click.prevent="removeQuestion(scope.row)">
+                              删除
+                            </el-button>
+                          </template>
+                        </el-table-column>
+                      </el-table>
+<!--                    </template>-->
+<!--                  </draggable>-->
+                </div>
+              </div>
+            </template>
+          </draggable>
           <el-empty v-show="selectedQuestions.length == 0" description="暂无数据"/>
         </div>
         <div class="tips" ref="tips" v-show="selectedQuestions.length != 0">
@@ -132,16 +158,19 @@
   <!-- 查看详情 -->
   <viewDetailsPage v-if="open" v-model:modelValue="open" :data="detailList" :title="title"
                    @cancel="()=>{}"></viewDetailsPage>
-  <randomGeneration v-if="randomOpen" v-model:modelValue="randomOpen" :data="randomTableData" @submit="" @cancel="()=>{}"></randomGeneration>
+  <randomGeneration v-if="randomOpen" v-model:modelValue="randomOpen" :data="randomTableData" @submit="generateRandomQuestions"
+                    @cancel="()=>{}"></randomGeneration>
 </template>
 
 <script setup>
 import {ref} from "vue";
 import {useRouter, useRoute} from "vue-router";
-import {addEvaluate, selectCatalogId} from "@/api/teaching/build";
+import draggable from "vuedraggable"
+import { selectCatalogId } from "@/api/teaching/build";
 import useEvaluateStore from "@/store/modules/build";
 import viewDetailsPage from './details.vue';
 import randomGeneration from './random.vue';
+
 
 const evaluateStore = useEvaluateStore();
 
@@ -185,6 +214,7 @@ const getQuestionBank = () => {
       ...item,
       selectedRows: [] // 为每个表格初始化选中行
     }));
+    // 随机题目类型
     randomTableData.value = res.data.map(item => ({
       questionType: item.questionType,
       score: 0,
@@ -217,14 +247,13 @@ const addQuestion = (question) => {
     if (!existingQuestion) {
       // 如果该题目不存在，添加到现有的 questionList
       existingType.questionList.push(question);
-      proxy.$modal.msgSuccess("更新已存在题目:");
+      // proxy.$modal.msgSuccess("更新已存在题目:");
     } else {
       proxy.$modal.msgWarning("题目已存在于该类型中，不再添加。");
     }
   }
   evaluateStore.form.bankQuestionList = selectedQuestions.value;
 };
-
 
 // 单个删除试题
 const removeQuestion = (question) => {
@@ -269,17 +298,100 @@ const selectionBankChange = (selection, index) => {
 
 // 删除已选题目
 const deleteSelectedQuestions = () => {
-  console.log(selectedQuestions.value)
-  selectedQuestions.value.forEach(selected => {
-    selected.questionList = selected.questionList.filter(item => !item.selected);
+  selectedQuestions.value.forEach((element) => {
+    const selected = element.selectedRows || [];
+
+    element.questionList = element.questionList.filter(
+        (row) => !selected.includes(row)
+    );
   });
-  selectedQuestions.value = selectedQuestions.value.filter(q => q.questionList.length > 0);
+  // 移除没有题目的题型
+  for (let i = selectedQuestions.value.length - 1; i >= 0; i--) {
+    if (selectedQuestions.value[i].questionList.length === 0) {
+      selectedQuestions.value.splice(i, 1);
+    }
+  }
   evaluateStore.form.bankQuestionList = selectedQuestions.value;
 };
 
 // 处理已选题目变化
 const selectedTopicChange = (selection, index) => {
   selectedQuestions.value[index].selectedRows = selection; // 更新选中状态
+};
+
+// 检查是否有选中题目
+const hasSelectedQuestions = computed(() => {
+  return selectedQuestions.value.some(element => element.selectedRows && element.selectedRows.length > 0);
+});
+
+// 从数组中随机获取指定数量的题目
+const getRandomItems = (array, count) => {
+  const shuffled = array.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+};
+
+// 将随机题目添加到已选题目中
+const addRandomQuestionsToSelected = (randomQuestions, questionType) => {
+  randomQuestions.forEach(question => {
+    const existingType = selectedQuestions.value.find(q => q.questionType === questionType);
+    if (!existingType) {
+      selectedQuestions.value.push({
+        questionType: question.questionType,
+        questionList: [question], // 将题目放入 questionList
+      });
+    } else {
+      const existingQuestion = existingType.questionList.find(it => it.questionId === question.questionId);
+      if (!existingQuestion) {
+        existingType.questionList.push(question); // 添加题目
+      } else {
+        proxy.$modal.msgWarning("题目已存在于该类型中，不再添加。");
+      }
+    }
+  });
+};
+
+// 随机生成题目
+const generateRandomQuestions = (data) => {
+  data.forEach(item => {
+    const { questionType, num, score } = item; // 获取数量和分数
+    if (num > 0) {
+      const availableQuestions = questions.value.find(q => q.questionType === questionType).questionList
+          .filter(q => !selectedQuestions.value.some(sq => sq.questionId === q.questionId)); // 排除已选中的题目
+
+      const randomQuestions = getRandomItems(availableQuestions, num);
+      randomQuestions.forEach(question => {
+        question.score = score; // 设置分数
+      });
+
+      if (randomQuestions.length) {
+        addRandomQuestionsToSelected(randomQuestions, questionType);
+      }
+      randomOpen.value = false;
+    }
+  });
+};
+
+
+// 计算右侧的总数量和总分
+const totalCountAndScore = computed(() => {
+  let totalCount = 0;
+  let totalScore = 0;
+
+  selectedQuestions.value.forEach(group => {
+    totalCount += group.questionList.length; // 累加题目数量
+    totalScore += group.questionList.reduce((sum, question) => sum + question.score, 0); // 累加分数
+  });
+
+  return {totalCount, totalScore};
+});
+
+// 计算右侧每个题型总分数
+const getScoreByType = (type) => {
+  const group = selectedQuestions.value.find(q => q.questionType === type);
+  if (group) {
+    return group.questionList.reduce((sum, question) => sum + question.score, 0);
+  }
+  return 0; // 如果没有找到对应的题型，返回0
 };
 
 // 随机生成题目
@@ -308,12 +420,17 @@ const preview = () => {
 
 // 发布
 const Next = () => {
+  if(totalCountAndScore.totalScore !== 100){
+    proxy.$modal.msgWarning("试题满分100分才可进行发布");
+    return
+  }
   const questionList = [];
   selectedQuestions.value.forEach((questions) => {
     questions.questionList.forEach((it) => {
       questionList.push(it);
     });
   });
+  evaluateStore.form.questionList = questionList;
   evaluateStore.saveEvaluation();
   evaluateStore.setActiveStep(2);
 };
@@ -321,6 +438,18 @@ const Next = () => {
 // 表头样式
 const tableHeaderStyle = () => {
   return {background: "#F2F3F4", height: "60px"};
+};
+
+const onOuterDragEnd = () => {
+  // 更新整体表格的顺序
+  console.log(selectedQuestions.value)
+};
+
+const onRowDragEnd = () => {
+  // 更新每行的顺序
+  // item.questionList.forEach((question, index) => {
+  //   question.order = index + 1; // 更新序号
+  // });
 };
 
 // 获取题库列表
@@ -355,19 +484,28 @@ $color: #437afc;
   position: relative;
 }
 
-.bank-header,
-.selected-header {
+.bank-header {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 50px;
   line-height: 50px;
   border-bottom: 1px solid #dcdfe6;
-  /*  padding: 0 10px;*/
-  /*  position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;*/
+}
+
+.selected-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  line-height: 50px;
+  border-bottom: 1px solid #dcdfe6;
+  padding: 0 15px;
+}
+
+.selected-header-left {
+  display: flex;
+  align-items: center;
 }
 
 .bank-title {
@@ -390,10 +528,6 @@ $color: #437afc;
   text-transform: none;
 }
 
-.placeholder {
-  height: 50px;
-}
-
 .bank-content {
   overflow-y: auto;
   height: calc(100% - 50px);
@@ -412,6 +546,10 @@ $color: #437afc;
   padding: 0 15px;
   background: #f5f9ff;
   border-radius: 0px 0px 0px 0px;
+}
+
+.components-draggable {
+  cursor: move;
 }
 
 .type-title {
