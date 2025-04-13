@@ -37,7 +37,7 @@
     </el-row>
 
     <!-- 表格数据 -->
-    <el-table v-loading="loading" :data="textbookList" @selection-change="handleSelectionChange">
+    <el-table  stripe  v-loading="loading" :data="textbookList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="封面" :show-overflow-tooltip="true" width="150" >
         <template #default="scope">

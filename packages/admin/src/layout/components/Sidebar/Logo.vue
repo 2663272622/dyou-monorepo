@@ -25,7 +25,7 @@ defineProps({
   }
 })
 
-const title = import.meta.env.VITE_APP_TITLE;
+const title = '点优数字'//import.meta.env.VITE_APP_TITLE;
 const settingsStore = useSettingsStore();
 const sideTheme = computed(() => settingsStore.sideTheme);
 
@@ -87,6 +87,17 @@ const getLogoTextColor = computed(() => {
       font-size: 14px;
       font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
       vertical-align: middle;
+
+      width: 88px;
+height: 24px;
+font-family: eryaxindahei, eryaxindahei;
+font-weight: 400;
+font-size: 22px;
+color: #1D2129;
+line-height: 24px;
+text-align: left;
+font-style: normal;
+text-transform: none;
     }
   }
 

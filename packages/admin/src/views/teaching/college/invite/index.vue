@@ -87,7 +87,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="linkList" @selection-change="handleSelectionChange">
+    <el-table  stripe  v-loading="loading" :data="linkList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="链接编码" align="center" prop="id"/>
 <!--      <el-table-column label="链接名称" align="center" prop="linkName"/>-->

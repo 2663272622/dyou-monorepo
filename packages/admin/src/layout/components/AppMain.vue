@@ -1,5 +1,6 @@
 <template>
-  <section class="app-main">
+  <section class="app-main"
+  >
     <router-view v-slot="{ Component, route }">
       <transition name="fade-transform" mode="out-in">
         <keep-alive :include="tagsViewStore.cachedViews">
@@ -42,9 +43,16 @@ function addIframe() {
 .app-main {
   /* 50= navbar  50  */
   min-height: calc(100vh - 50px);
+  min-height: calc(100vh - 50px);
+  max-height: calc(100vh - 50px);
+  height: calc(100vh - 50px);
+  overflow-y: auto;
   width: 100%;
   position: relative;
   overflow: hidden;
+  background-color: #f5f8fa;
+  padding:30px;
+  box-sizing: border-box;
 }
 
 .fixed-header + .app-main {
@@ -54,7 +62,14 @@ function addIframe() {
 .hasTagsView {
   .app-main {
     /* 84 = navbar + tags-view = 50 + 34 */
-    min-height: calc(100vh - 84px);
+    min-height: calc(100vh - 50px);
+    min-height: calc(100vh - 50px);
+    max-height: calc(100vh - 50px);
+    height: calc(100vh - 50px);
+    overflow-y: auto;
+    background-color: #f5f8fa;
+    padding:30px;
+    box-sizing: border-box;
   }
 
   .fixed-header + .app-main {

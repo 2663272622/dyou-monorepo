@@ -23,7 +23,7 @@
          </el-form-item>
       </el-form>
       
-      <el-table v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
+      <el-table  stripe  v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
          <el-table-column label="头像" align="center" fixed="left" width="70"  >
             <template #default="scope">
                 <el-image

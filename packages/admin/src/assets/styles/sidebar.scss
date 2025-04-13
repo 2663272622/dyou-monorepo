@@ -1,5 +1,8 @@
 #app {
-
+  .is-active .el-sub-menu__title > .menu-title,.is-active .el-sub-menu__title > .svg-icon {
+    color: $menuLightActiveText !important;
+  }
+  
   .main-container {
     min-height: 100%;
     transition: margin-left .28s;
@@ -86,10 +89,10 @@
       }
     }
 
-    & .theme-dark .is-active > .el-sub-menu__title {
+    & .theme-dark .is-active .el-sub-menu__title {
       color: $base-menu-color-active !important;
     }
-
+ 
     & .nest-menu .el-sub-menu>.el-sub-menu__title,
     & .el-sub-menu .el-menu-item {
       min-width: $base-sidebar-width !important;

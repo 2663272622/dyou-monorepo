@@ -48,7 +48,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="examineList" @selection-change="handleSelectionChange">
+    <el-table  stripe  v-loading="loading" :data="examineList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="用户编码" align="center" prop="id"/>
       <el-table-column label="用户名" align="center" prop="userName"/>

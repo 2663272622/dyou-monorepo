@@ -75,7 +75,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="classList" @selection-change="handleSelectionChange">
+    <el-table  stripe  v-loading="loading" :data="classList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="班级编码" align="center" prop="classId"/>
       <el-table-column label="班级名称" align="center" prop="className"/>

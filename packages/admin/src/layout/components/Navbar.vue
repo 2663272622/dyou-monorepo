@@ -5,7 +5,8 @@
     <top-nav v-if="settingsStore.topNav" id="topmenu-container" class="topmenu-container" />
 
     <div class="right-menu">
-      <template v-if="appStore.device !== 'mobile'">
+      <template v-if="false">
+      <!-- <template v-if="appStore.device !== 'mobile'"> -->
         <header-search id="header-search" class="right-menu-item" />
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
 

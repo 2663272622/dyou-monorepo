@@ -1,5 +1,5 @@
 <template>
-  <el-breadcrumb class="app-breadcrumb" separator="/">
+  <el-breadcrumb class="app-breadcrumb" separator=">">
     <transition-group name="breadcrumb">
       <el-breadcrumb-item v-for="(item, index) in levelList" :key="item.path">
         <span v-if="item.redirect === 'noRedirect' || index == levelList.length - 1" class="no-redirect">{{ item.meta.title }}</span>
@@ -36,7 +36,7 @@ function getBreadcrumb() {
   if (!isDashboard(matched[0])) {
     matched = [{ path: "/index", meta: { title: "首页" } }].concat(matched)
   }
-  levelList.value = matched.filter(item => item.meta && item.meta.title && item.meta.breadcrumb !== false)
+  levelList.value = matched.filter(item => item.meta && item.meta.title && item.meta.breadcrumb !== false).filter(item => item.meta.title !== '首页')
 }
 function findPathNum(str, char = "/") {
   let index = str.indexOf(char)

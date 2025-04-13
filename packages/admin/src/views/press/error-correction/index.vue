@@ -70,7 +70,7 @@
     </el-row>
 
     <!-- 表格数据 -->
-    <el-table v-loading="loading" :data="contributeList">
+    <el-table  stripe  v-loading="loading" :data="contributeList">
       <el-table-column label="编号" prop="id"/>
       <el-table-column label="书籍名称" prop="bookName" :show-overflow-tooltip="true" width="150"/>
       <el-table-column label="错误原文内容" prop="errorContent" :show-overflow-tooltip="true" width="150"/>

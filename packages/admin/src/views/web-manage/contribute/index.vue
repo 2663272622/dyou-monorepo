@@ -75,7 +75,7 @@
     </el-row>
 
     <!-- 表格数据 -->
-    <el-table v-loading="loading" :data="contributeList" @selection-change="handleSelectionChange">
+    <el-table  stripe  v-loading="loading" :data="contributeList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column type="index" label="序号" width="120"/>
       <el-table-column label="投稿人" prop="submitterName" :show-overflow-tooltip="true" width="150"/>

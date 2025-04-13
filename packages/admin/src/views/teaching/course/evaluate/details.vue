@@ -31,7 +31,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="detailList">
+    <el-table  stripe  v-loading="loading" :data="detailList">
       <el-table-column :label="typeTitle + '编码'" align="center" prop="courseId"/>
       <el-table-column label="姓名" align="center" prop="nickName"/>
       <el-table-column :label="typeTitle + '提交时间'" align="center" width="180">

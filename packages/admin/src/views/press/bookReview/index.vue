@@ -55,7 +55,7 @@
           </el-form-item>
        </el-form>
        
-        <el-table v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
+        <el-table  stripe  v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
 
 
                 

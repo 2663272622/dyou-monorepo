@@ -55,7 +55,7 @@
          </el-form-item> 
        </el-form>
        
-       <el-table v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
+       <el-table  stripe  v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
         <el-table-column label="题库类型" align="center" prop="bankType"   width="150" >
              <template #default="scope">
                 <dict-tag :options="question_bank_type" :value="scope.row.bankType" />

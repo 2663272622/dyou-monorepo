@@ -5,7 +5,10 @@
     <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebar.hide }" class="main-container">
       <div :class="{ 'fixed-header': fixedHeader }">
         <navbar @setLayout="setLayout" />
-        <tags-view v-if="needTagsView" />
+        <!-- <div class="breadcrumb-container">
+          面包屑
+        </div> -->
+        <!-- <tags-view v-if="needTagsView" /> -->
       </div>
       <app-main />
       <settings ref="settingRef" />
@@ -110,5 +113,21 @@ function setLayout() {
 
 .mobile .fixed-header {
   width: 100%;
+}
+.breadcrumb-container{
+  height: 60px;
+  width: 100%;
+  background-color: #fff;
+  padding: 0 20px;
+  box-sizing: border-box;
+   
+  font-family: Alibaba PuHuiTi 3.0, Alibaba PuHuiTi 30;
+  font-weight: 500;
+  font-size: 14px;
+  color: #1D2129;
+  line-height: 17px;
+  text-align: left;
+  font-style: normal;
+  text-transform: none;
 }
 </style>

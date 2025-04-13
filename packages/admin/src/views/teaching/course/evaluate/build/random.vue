@@ -1,7 +1,7 @@
 <template>
   <el-dialog :title="props.title" v-model="modelValue" width="40%" :close-on-click-modal="false"
              :close-on-press-escape="false" align-center append-to-body>
-    <el-table :data="data">
+    <el-table  stripe  :data="data">
       <el-table-column label="题型">
         <template #default="{row}">
           <dict-tag :options="topic_type" :value="row.questionType"/>

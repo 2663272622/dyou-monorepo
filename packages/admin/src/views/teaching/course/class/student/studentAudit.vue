@@ -49,7 +49,7 @@
           :name="item.value"
           :stretch="true"
       >
-        <el-table v-loading="loading" :data="studentAuditList" @selection-change="handleSelectionChange">
+        <el-table  stripe  v-loading="loading" :data="studentAuditList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center"/>
           <el-table-column label="编号" align="center" prop="id"/>
           <el-table-column label="学生编号" align="center" prop="studentId"/>

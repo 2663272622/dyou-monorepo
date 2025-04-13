@@ -25,7 +25,7 @@
          </el-form-item>
       </el-form>
       
-      <el-table v-loading="loading" :data="typeList" @selection-change="handleSelectionChange"> 
+      <el-table  stripe  v-loading="loading" :data="typeList" @selection-change="handleSelectionChange"> 
          <el-table-column label="书籍名称" align="center" fixed="left" prop="bookName"  width="200" :show-overflow-tooltip="true"/>
          <el-table-column label="购买人" align="center" prop="userName"  width="200" :show-overflow-tooltip="true"/>
          <el-table-column label="购买数量" align="center" prop="count"  width="200" :show-overflow-tooltip="true"/>

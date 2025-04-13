@@ -94,3 +94,20 @@
 .el-dropdown .el-dropdown-link{
   color: var(--el-color-primary) !important;
 }
+
+
+.el-input{
+  // --el-input-bg-color: var();
+  
+}
+
+.el-button.is-plain{
+  --el-button-hover-text-color: var(--el-color-primary);
+  --el-button-bg-color: #fff !important;
+  
+  --el-button-hover-border-color: var(--el-color-primary);
+}
+.el-menu-item.is-active {
+  color: var(--el-menu-active-color) !important;
+  background-color: #f2f3f5 !important;
+} 

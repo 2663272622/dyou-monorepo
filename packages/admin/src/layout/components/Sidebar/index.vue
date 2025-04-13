@@ -5,7 +5,7 @@
       <el-menu
         :default-active="activeMenu"
         :collapse="isCollapse"
-        :background-color="getMenuBackground"
+        background-color="#0000"
         :text-color="getMenuTextColor"
         :unique-opened="true"
         :active-text-color="theme"
@@ -68,12 +68,19 @@ const activeMenu = computed(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss"  >
 .sidebar-container {
   background-color: v-bind(getMenuBackground);
   
   .scrollbar-wrapper {
-    background-color: v-bind(getMenuBackground);
+    // background-color: v-bind(getMenuBackground);
+    
+    background-color: #fff;
+    background-image: url(https://yj-dy-project.oss-cn-qingdao.aliyuncs.com/dy/7392.jpg);
+    background-size: 200px 200px;
+    background-repeat: no-repeat;
+    background-position-y: bottom;
+    background-position-y: calc(100% - 20px);
   }
 
   .el-menu {
@@ -91,8 +98,8 @@ const activeMenu = computed(() => {
       color: v-bind(getMenuTextColor);
       
       &.is-active {
-        color: var(--menu-active-text, #409eff);
-        background-color: var(--menu-hover, rgba(0, 0, 0, 0.06)) !important;
+        // color: var(--menu-active-text, #409eff);
+        // background-color: var(--menu-hover, rgba(0, 0, 0, 0.06)) !important;
       }
     }
 
