@@ -12,7 +12,7 @@
       </el-steps>
     </div>
 
-    <component :is="currentComponent" :typeTitle="typeTitle" />
+    <component :is="currentComponent"  />
   </div>
 </template>
 
@@ -37,14 +37,6 @@ if (assessmentId) {
     console.error(error);
   });
 }
-
-const typeTitle = computed(() => {
-  return evaluateStore.form.assessType == 1
-    ? "考试"
-    : evaluateStore.form.assessType == 2
-      ? "作业"
-      : "测评";
-});
 
 // 组件
 const currentComponent = computed(() => {
