@@ -256,8 +256,10 @@ export const handleInit = (cnf,call)=>{
                             region: ossKey.regionId,
                             bucket: ossKey.bucketName,
                             policy: ossKey.policy,
-                            endpoint: `https://oss-cn-qingdao.aliyuncs.com/`, 
+                            endpoint: ossKey.host,
+                            // endpoint: `https://oss-cn-qingdao.aliyuncs.com/`, 
                         }
+                        console.log(ossKey.endpoint)
                         const client = new OSS(cof);
                         let upath = '';
                         try{
@@ -277,7 +279,7 @@ export const handleInit = (cnf,call)=>{
                                 }
                                 if(p==1){
                                     console.log(ossKey.host+name)
-                                    let mediaLocation = ossKey.host+name;
+                                    let mediaLocation = ossKey.domain+name;
                                      
                                     call(p,{
                                         storagePath: ossKey.host+name,
