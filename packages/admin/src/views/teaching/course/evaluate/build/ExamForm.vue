@@ -143,9 +143,6 @@ const route = useRoute();
 
 const { proxy } = getCurrentInstance();
 
-const props = defineProps({
-  typeTitle: String,
-});
 
 // 班级列表
 const classList = ref([]);
@@ -158,7 +155,7 @@ const chapterTreeRef = ref(null);
 // 所有目录章节的id
 const allIds = ref([]);
 // 类型标题
-const title = props.typeTitle;
+const title = evaluateStore.TypeTitle;
 
 // 级联选择器的字段
 const defaultProps = {
@@ -197,22 +194,30 @@ const data = reactive({
 const { queryParams, form, rules } = toRefs(data);
 
 
-/*获取班级列表*/
-function getClassList() {
-  listClass(queryParams.value).then((response) => {
+/* 获取班级列表 */
+const getClassList = async () => {
+  try {
+    const response = await listClass(queryParams.value);
     classList.value = response.rows;
-  });
+  } catch (error) {
+    console.error("Failed to fetch class list:", error);
+    throw error;
+  }
 }
 
-/*获取书籍章节列表*/
-function getCatalogList() {
-  listCatalog(queryParams.value).then((response) => {
+/* 获取书籍章节列表 */
+const getCatalogList = async () => {
+  try {
+    const response = await listCatalog(queryParams.value);
     chapterList.value = response.data;
-  });
+  } catch (error) {
+    console.error("Failed to fetch catalog list:", error);
+    throw error;
+  }
 }
 
 /*自动生成名称*/
-function generateName() {
+const generateName = () => {
   const date = getBeijingTime("YYYY/MM/DD");
   form.value.assessmentName =
     date + " " + evaluateStore.form.assessmentName + title;
@@ -225,7 +230,7 @@ const handleCheckedAll = () => {
 
   if (selectAll.value) {
     // 当全选被选中时，递归收集所有章节和子章节的 ID
-    collectAllIds(chapterList.value);
+    form.value.catalogIdList = collectAllIds(chapterList.value);
   } else {
     // 当全选被取消时，清空选中
     form.value.catalogIdList = [];
@@ -233,27 +238,27 @@ const handleCheckedAll = () => {
 };
 
 // 递归收集所有章节和子章节的 ID
-const collectAllIds = (list) => {
+const collectAllIds = (list, idList = []) => {
   list.forEach((item) => {
-    form.value.catalogIdList.push(item.catalogId); // 添加当前章节 ID
-    allIds.value.push(item.catalogId);
+    idList.push(item.catalogId); // 添加当前章节 ID
     if (item.children) {
-      collectAllIds(item.children); // 递归调用处理子章节
+      collectAllIds(item.children, idList); // 递归调用处理子章节
     }
   });
+  return idList; // 返回收集到的所有 ID
 };
 
 // 清空选择
-function clearSelection() {
+const clearSelection = () => {
   form.value.catalogIdList = []; // 清空选择
   selectAll.value = false;
 }
 
 // 处理下一步
-function Next() {
+const Next = () => {
   proxy.$refs["examFormRef"].validate((valid) => {
     if (valid) {
-      const ids = [...new Set(form.value.catalogIdList.flat(Infinity))]; // 生成唯一的 IDs
+      const ids = [...new Set(form.value.catalogIdList.flat(Infinity))];
       evaluateStore.form.catalogIdList = ids;
       evaluateStore.setActiveStep(1);
     }
@@ -261,32 +266,25 @@ function Next() {
 }
 
 function chooseDir(value) {
-  console.log(value);
+  const ids = [...new Set(value.flat(Infinity))];
+  evaluateStore.form.catalogIdList = ids;
 }
 
 // 监听选中项变化，以更新全选复选框状态
-/*watch(catalogIdList, (oldVal,newVal) => {
-  collectAllIds(chapterList.value);
-  console.log(oldVal,newVal)
-  console.log(catalogIdList)
-  // console.log(newVal.flat(Infinity))
-  const ids = [...new Set(newVal.flat(Infinity))];
-  const all =  [...new Set(allIds.value.flat(Infinity))]
-  // console.log(ids)
-  // console.log(all)
+watch( () => evaluateStore.form.catalogIdList, (newVal,oldVal) => {
   // 更新全选状态
-  selectAll.value = all.length === ids.length;
-});*/
+  selectAll.value = allIds.value.length === newVal.length;
+},{ deep: true ,immediate:true});
 
-onMounted(() => {
-  getClassList();
-  getCatalogList();
-/*  nextTick(()=>{
-    form.value = evaluateStore.form;
-  })*/
-  setTimeout(() => {
-    form.value = evaluateStore.form;
-  }, 500);
+
+onMounted(async () => {
+  await getClassList();
+  await getCatalogList();
+
+  form.value = evaluateStore.form;
+  allIds.value = collectAllIds(chapterList.value);
+  // 更新全选状态
+  selectAll.value = allIds.value.length === evaluateStore.form.catalogIdList.length;
 });
 </script>
 

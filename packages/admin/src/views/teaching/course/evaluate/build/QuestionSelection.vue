@@ -68,7 +68,9 @@
                 class="total">&thinsp;{{ totalCountAndScore.totalScore }}&thinsp;</span>分
             </div>
           </div>
-          <el-button icon="Delete" type="primary" link :disabled="!hasSelectedQuestions" @click="deleteSelectedQuestions">删除</el-button>
+          <el-button icon="Delete" type="primary" link :disabled="!hasSelectedQuestions"
+                     @click="deleteSelectedQuestions">删除
+          </el-button>
         </div>
         <div class="selected-content">
           <draggable
@@ -91,58 +93,47 @@
                   <el-button type="primary" link @click="viewDetails(element,index)">查看详情</el-button>
                 </div>
                 <div class="selected-list">
-<!--                  <draggable-->
-<!--                      :list="element.questionList"-->
-<!--                      :group="{ name: 'QuestionList' }"-->
-<!--                      itemKey="questionId"-->
-<!--                      animation="300"-->
-<!--                  >-->
-<!--                    <template #item="{ item, i }">-->
-                      <el-table
-                          :data="element.questionList"
-                          :header-row-style="tableHeaderStyle"
-                          @selection-change="(selection) => selectedTopicChange(selection, index)"
-                          row-key="questionId"
-                          max-height="250"
-                      >
-                        <el-table-column
-                            type="index"
-                            align="center"
-                            label=""
-                            fixed
-                            :width="60"
-                        >
-                          <template #default="{ row, $index }">
-                            <el-icon>
-                              <Rank/>
-                            </el-icon>
-                          </template>
-                        </el-table-column>
-                        <el-table-column fixed type="selection" width="30"/>
-                        <el-table-column
-                            prop="questionText"
-                            label="题目"
-                            width="300"
-                            :show-overflow-tooltip="true"
-                        />
-                        <el-table-column prop="score" label="分值"/>
-                        <el-table-column fixed="right" label="操作">
-                          <template #default="scope">
-                            <el-button link type="primary" size="small"  @click.prevent="removeQuestion(scope.row)">
-                              删除
-                            </el-button>
-                          </template>
-                        </el-table-column>
-                      </el-table>
-<!--                    </template>-->
-<!--                  </draggable>-->
+                  <el-table
+                      :data="element.questionList"
+                      :header-row-style="tableHeaderStyle"
+                      @selection-change="(selection) => selectedTopicChange(selection, index)"
+                      row-key="questionId"
+                      max-height="250"
+                  >
+                    <el-table-column
+                        type="index"
+                        align="center"
+                        label=""
+                        fixed
+                        :width="60"
+                    >
+                      <template #default>
+                        <el-icon class="handle_move"><Rank/></el-icon>
+                      </template>
+                    </el-table-column>
+                    <el-table-column fixed type="selection" width="30"/>
+                    <el-table-column
+                        prop="questionText"
+                        label="题目"
+                        width="300"
+                        :show-overflow-tooltip="true"
+                    />
+                    <el-table-column prop="score" label="分值"/>
+                    <el-table-column fixed="right" label="操作">
+                      <template #default="scope">
+                        <el-button link type="primary" size="small" @click.prevent="removeQuestion(scope.row)">
+                          删除
+                        </el-button>
+                      </template>
+                    </el-table-column>
+                  </el-table>
                 </div>
               </div>
             </template>
           </draggable>
           <el-empty v-show="selectedQuestions.length == 0" description="暂无数据"/>
         </div>
-        <div class="tips" ref="tips" v-show="selectedQuestions.length != 0">
+        <div class="tips" ref="tips" title="注:试题满分100分才可进行发布，如不够100分，可在左侧列表设置分值或继续添加题目" v-show="selectedQuestions.length != 0">
           注:试题满分100分才可进行发布，如不够100分，可在左侧列表设置分值或继续添加题目
         </div>
       </div>
@@ -158,15 +149,16 @@
   <!-- 查看详情 -->
   <viewDetailsPage v-if="open" v-model:modelValue="open" :data="detailList" :title="title"
                    @cancel="()=>{}"></viewDetailsPage>
-  <randomGeneration v-if="randomOpen" v-model:modelValue="randomOpen" :data="randomTableData" @submit="generateRandomQuestions"
+  <randomGeneration v-if="randomOpen" v-model:modelValue="randomOpen" :data="randomTableData"
+                    @submit="generateRandomQuestions"
                     @cancel="()=>{}"></randomGeneration>
 </template>
 
 <script setup>
 import {ref} from "vue";
 import {useRouter, useRoute} from "vue-router";
-import draggable from "vuedraggable"
-import { selectCatalogId } from "@/api/teaching/build";
+import draggable from "vuedraggable";
+import {selectCatalogId} from "@/api/teaching/build";
 import useEvaluateStore from "@/store/modules/build";
 import viewDetailsPage from './details.vue';
 import randomGeneration from './random.vue';
@@ -176,10 +168,6 @@ const evaluateStore = useEvaluateStore();
 
 const route = useRoute();
 const router = useRouter();
-
-const props = defineProps({
-  data: Object,
-});
 
 const {proxy} = getCurrentInstance();
 const {topic_type} = proxy.useDict("topic_type");
@@ -353,7 +341,7 @@ const addRandomQuestionsToSelected = (randomQuestions, questionType) => {
 // 随机生成题目
 const generateRandomQuestions = (data) => {
   data.forEach(item => {
-    const { questionType, num, score } = item; // 获取数量和分数
+    const {questionType, num, score} = item; // 获取数量和分数
     if (num > 0) {
       const availableQuestions = questions.value.find(q => q.questionType === questionType).questionList
           .filter(q => !selectedQuestions.value.some(sq => sq.questionId === q.questionId)); // 排除已选中的题目
@@ -420,7 +408,7 @@ const preview = () => {
 
 // 发布
 const Next = () => {
-  if(totalCountAndScore.totalScore !== 100){
+  if (totalCountAndScore.totalScore !== 100) {
     proxy.$modal.msgWarning("试题满分100分才可进行发布");
     return
   }
@@ -580,6 +568,9 @@ $color: #437afc;
   height: 40px;
   line-height: 40px;
   border-top: 1px solid #dcdfe6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .question-list,
